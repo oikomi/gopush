@@ -22,7 +22,7 @@ import (
 	"github.com/funny/link"
 )
 
-var InputConfFile = flag.String("conf_file", "login_server.json", "input conf file name")   
+var InputConfFile = flag.String("conf_file", "session_manager.json", "input conf file name")   
 
 func handler(session *link.Session) {
 	log.Println("client", session.Conn().RemoteAddr().String(), "in")
