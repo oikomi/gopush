@@ -1,5 +1,5 @@
 {
 	"TransportProtocols" : "tcp",
-	"Listen": "127.0.0.1:18000",
+	"Listen": "127.0.0.1:18001",
 	"LogFile": "login_server.log"
 }
