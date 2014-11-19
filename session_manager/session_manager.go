@@ -33,13 +33,10 @@ func handler(session *link.Session) {
 	})
 
 	log.Println("client", session.Conn().RemoteAddr().String(), "close")
-	
-	
 }
 
 func main() {
 	flag.Parse()
-	//log.Println(*InputConfFile)
 	cfg, err := LoadConfig(*InputConfFile)
 	if err != nil {
 		log.Fatalln(err.Error())
@@ -55,5 +52,4 @@ func main() {
 	log.Println("server start:", server.Listener().Addr().String())
 	
 	server.AcceptLoop(handler)
-	//log.Println(server.sessions)
 }

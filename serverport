@@ -1,0 +1,5 @@
+gateway 18000
+
+session_manager 17000
+
+msg_server 19000
