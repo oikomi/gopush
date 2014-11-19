@@ -19,17 +19,17 @@ import (
 	"flag"
 	"log"
 	"encoding/binary"
-	"github.com/oikomi/gopush/netlib"
+	"github.com/funny/link"
 )
 
 var InputConfFile = flag.String("conf_file", "session_manager.json", "input conf file name")   
 
-func handler(session *netlib.Session) {
+func handler(session *link.Session) {
 	log.Println("client", session.Conn().RemoteAddr().String(), "in")
 
 	session.ReadLoop(func(msg []byte) {
 		log.Println("client", session.Conn().RemoteAddr().String(), "say:", string(msg))
-		session.Send(netlib.Binary(msg))
+		session.Send(link.Binary(msg))
 	})
 
 	log.Println("client", session.Conn().RemoteAddr().String(), "close")
@@ -46,9 +46,9 @@ func main() {
 		return
 	}
 	
-	protocol := netlib.PacketN(2, binary.BigEndian)
+	protocol := link.PacketN(2, binary.BigEndian)
 	
-	server, err := netlib.Listen(cfg.TransportProtocols, cfg.Listen, protocol)
+	server, err := link.Listen(cfg.TransportProtocols, cfg.Listen, protocol)
 	if err != nil {
 		panic(err)
 	}
