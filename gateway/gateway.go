@@ -25,8 +25,13 @@ import (
 
 var InputConfFile = flag.String("conf_file", "gateway.json", "input conf file name")   
 
+
 func selectMsgServer(serverList []string, serverNum int) string{
 	return serverList[rand.Intn(serverNum)]
+}
+
+func connectSessionManagerServer() {
+	
 }
 
 func main() {

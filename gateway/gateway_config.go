@@ -27,6 +27,7 @@ type Config struct {
 	LogFile    string
 	MsgServerList []string
 	MsgServerNum int
+	SessionManagerServerList []string
 }
 
 func LoadConfig(configfile string) (cfg Config, err error) {
