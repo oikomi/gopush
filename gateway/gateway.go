@@ -26,21 +26,19 @@ import (
 var InputConfFile = flag.String("conf_file", "gateway.json", "input conf file name")   
 
 
-func selectMsgServer(serverList []string, serverNum int) string{
+func selectServer(serverList []string, serverNum int) string{
 	return serverList[rand.Intn(serverNum)]
 }
 
-func connectSessionManagerServer(cfg Config) error{
+func connectSessionManagerServer(cfg Config) (*link.Session, error) {
 	protocol := link.PacketN(2, binary.BigEndian)
-	client, err := link.Dial("tcp", "127.0.0.1:10010", protocol)
+	client, err := link.Dial("tcp", selectServer(cfg.SessionManagerServerList, len(cfg.SessionManagerServerList)), protocol)
 	if err != nil {
+		log.Fatal(err.Error())
 		panic(err)
 	}
-	go client.ReadLoop(func(msg []byte) {
-		log.Println("message:", string(msg))
-	})
 
-	return err
+	return client, err
 }
 
 func main() {
@@ -58,12 +56,18 @@ func main() {
 		panic(err)
 	}
 	log.Println("server start:", server.Listener().Addr().String())
-	log.Println(cfg.MsgServerList)
-
+	sessionManager, err := connectSessionManagerServer(cfg)
+	if err != nil {
+		log.Fatal(err.Error())
+		return
+	}
 	server.AcceptLoop(func(session *link.Session) {
 		log.Println("client", session.Conn().RemoteAddr().String(), "in")
-		session.Send(link.Binary(selectMsgServer(cfg.MsgServerList, cfg.MsgServerNum)))
+		msgServer := selectServer(cfg.MsgServerList, cfg.MsgServerNum)
+		session.Send(link.Binary(msgServer))
+		sessionManager.Send(link.Binary(session.Conn().RemoteAddr().String()))	
 		session.Close(nil)
 		log.Println("client", session.Conn().RemoteAddr().String(), "close")
+
 	})
 }
