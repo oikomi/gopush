@@ -20,23 +20,13 @@ import (
 	"log"
 	"encoding/binary"
 	"github.com/funny/link"
+	"math/rand"
 )
 
 var InputConfFile = flag.String("conf_file", "gateway.json", "input conf file name")   
 
-func handler(session *link.Session) {
-	log.Println("client", session.Conn().RemoteAddr().String(), "in")
-
-	//session.ReadLoop(func(msg []byte) {
-	//	log.Println("client", session.Conn().RemoteAddr().String(), "say:", string(msg))
-		//session.Send()
-	//})
-
-	session.Send(link.Binary("12"))
-
-	log.Println("client", session.Conn().RemoteAddr().String(), "close")
-	
-	
+func selectMsgServer(serverList []string, serverNum int) string{
+	return serverList[rand.Intn(serverNum)]
 }
 
 func main() {
@@ -56,6 +46,9 @@ func main() {
 	log.Println("server start:", server.Listener().Addr().String())
 	log.Println(cfg.MsgServerList)
 
-	server.AcceptLoop(handler)
-	//log.Println(server.sessions)
+	server.AcceptLoop(func(session *link.Session) {
+		log.Println("client", session.Conn().RemoteAddr().String(), "in")
+		session.Send(link.Binary(selectMsgServer(cfg.MsgServerList, cfg.MsgServerNum)))
+		log.Println("client", session.Conn().RemoteAddr().String(), "close")
+	})
 }

@@ -18,7 +18,6 @@ package main
 import (
 	"os"
 	"encoding/json"
-	//"flag"
 	"log"
 )
 
@@ -27,15 +26,10 @@ type Config struct {
 	Listen string
 	LogFile    string
 	MsgServerList []string
-	MsgServerNum uint32
+	MsgServerNum int
 }
 
 func LoadConfig(configfile string) (cfg Config, err error) {
-	//log.Println(configpath)
-	//var configfile string
-	//flag.StringVar(&configfile, "config", configpath, "config file")
-	//flag.Parse()
-
 	file, err := os.Open(configfile)
 	if err != nil {
 		log.Fatalln("Open configfile failed")
