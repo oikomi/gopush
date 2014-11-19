@@ -49,6 +49,7 @@ func main() {
 	server.AcceptLoop(func(session *link.Session) {
 		log.Println("client", session.Conn().RemoteAddr().String(), "in")
 		session.Send(link.Binary(selectMsgServer(cfg.MsgServerList, cfg.MsgServerNum)))
+		session.Close(nil)
 		log.Println("client", session.Conn().RemoteAddr().String(), "close")
 	})
 }
