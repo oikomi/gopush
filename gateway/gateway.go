@@ -30,8 +30,17 @@ func selectMsgServer(serverList []string, serverNum int) string{
 	return serverList[rand.Intn(serverNum)]
 }
 
-func connectSessionManagerServer() {
-	
+func connectSessionManagerServer(cfg Config) error{
+	protocol := link.PacketN(2, binary.BigEndian)
+	client, err := link.Dial("tcp", "127.0.0.1:10010", protocol)
+	if err != nil {
+		panic(err)
+	}
+	go client.ReadLoop(func(msg []byte) {
+		log.Println("message:", string(msg))
+	})
+
+	return err
 }
 
 func main() {
