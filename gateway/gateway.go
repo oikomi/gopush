@@ -39,7 +39,6 @@ func handler(session *link.Session) {
 
 func main() {
 	flag.Parse()
-	//log.Println(*InputConfFile)
 	cfg, err := LoadConfig(*InputConfFile)
 	if err != nil {
 		log.Fatalln(err.Error())
