@@ -25,6 +25,14 @@ import (
 
 var InputConfFile = flag.String("conf_file", "gateway.json", "input conf file name")   
 
+type SessionStore struct {
+	ClientAddr string
+	MsgServerAddr string
+}
+
+func NewSessionStore() *SessionStore {
+	return &SessionStore{}
+}
 
 func selectServer(serverList []string, serverNum int) string{
 	return serverList[rand.Intn(serverNum)]
@@ -40,6 +48,8 @@ func connectSessionManagerServer(cfg Config) (*link.Session, error) {
 
 	return client, err
 }
+
+
 
 func main() {
 	flag.Parse()
@@ -65,7 +75,14 @@ func main() {
 		log.Println("client", session.Conn().RemoteAddr().String(), "in")
 		msgServer := selectServer(cfg.MsgServerList, cfg.MsgServerNum)
 		session.Send(link.Binary(msgServer))
-		sessionManager.Send(link.Binary(session.Conn().RemoteAddr().String()))	
+		sessionStore := NewSessionStore()
+		sessionStore.ClientAddr = session.Conn().RemoteAddr().String()
+		sessionStore.MsgServerAddr = msgServer
+		sessionManager.Send(link.JSON{
+			sessionStore,
+			15,
+		})
+		//sessionManager.Send(link.Binary(session.Conn().RemoteAddr().String()))	
 		session.Close(nil)
 		log.Println("client", session.Conn().RemoteAddr().String(), "close")
 
