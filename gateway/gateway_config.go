@@ -26,6 +26,8 @@ type Config struct {
 	TransportProtocols string
 	Listen string
 	LogFile    string
+	MsgServerList []string
+	MsgServerNum uint32
 }
 
 func LoadConfig(configfile string) (cfg Config, err error) {

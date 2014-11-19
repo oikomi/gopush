@@ -27,10 +27,12 @@ var InputConfFile = flag.String("conf_file", "gateway.json", "input conf file na
 func handler(session *link.Session) {
 	log.Println("client", session.Conn().RemoteAddr().String(), "in")
 
-	session.ReadLoop(func(msg []byte) {
-		log.Println("client", session.Conn().RemoteAddr().String(), "say:", string(msg))
-		session.Send(link.Binary(msg))
-	})
+	//session.ReadLoop(func(msg []byte) {
+	//	log.Println("client", session.Conn().RemoteAddr().String(), "say:", string(msg))
+		//session.Send()
+	//})
+
+	session.Send(link.Binary("12"))
 
 	log.Println("client", session.Conn().RemoteAddr().String(), "close")
 	
@@ -52,8 +54,8 @@ func main() {
 		panic(err)
 	}
 	log.Println("server start:", server.Listener().Addr().String())
-	
+	log.Println(cfg.MsgServerList)
+
 	server.AcceptLoop(handler)
 	//log.Println(server.sessions)
-
 }
