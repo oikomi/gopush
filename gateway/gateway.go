@@ -28,6 +28,8 @@ var InputConfFile = flag.String("conf_file", "gateway.json", "input conf file na
 type SessionStore struct {
 	ClientAddr string
 	MsgServerAddr string
+	ID string
+	MaxAge time.Duration
 }
 
 func NewSessionStore() *SessionStore {

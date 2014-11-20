@@ -19,6 +19,7 @@ import (
 	"flag"
 	"log"
 	"encoding/binary"
+	"encoding/json"
 	"github.com/funny/link"
 	"github.com/oikomi/gopush/session_manager/redis_store"
 )
@@ -55,11 +56,15 @@ func main() {
 
 	session.ReadLoop(func(msg link.InMessage) {
 		log.Println("client", session.Conn().RemoteAddr().String(),"say:", string(msg))
-		redisStore.Set(redis_store.StoreSession {
-			ClientAddr : msg.ClientAddr,
-			MsgServerAddr : msg.MsgServerAddr,
-		})
 		
+		var ss redis_store.StoreSession
+		
+		err := json.Unmarshal(msg, &ss)
+		if err != nil {
+			log.Fatalln("error:", err)
+		}
+
+		redisStore.Set(&ss)
 	})
 	
 
