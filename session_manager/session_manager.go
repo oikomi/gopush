@@ -66,9 +66,6 @@ func main() {
 
 		redisStore.Set(&ss)
 	})
-	
-
-
 
 	log.Println("client", session.Conn().RemoteAddr().String(), "close")
 	})
