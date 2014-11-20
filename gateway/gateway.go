@@ -21,29 +21,10 @@ import (
 	"encoding/binary"
 	"github.com/funny/link"
 	"math/rand"
-	"time"
 	"strconv"
 )
 
 var InputConfFile = flag.String("conf_file", "gateway.json", "input conf file name")   
-
-type SessionStore struct {
-	ClientID string
-	ClientAddr string
-	MsgServerAddr string
-	ID string
-	MaxAge time.Duration
-}
-
-func NewSessionStore() *SessionStore {
-	return &SessionStore{}
-}
-
-func (self *SessionStore)checkClientID(clientID string) bool {
-	
-	
-	return true
-}
 
 func selectServer(serverList []string, serverNum int) string{
 	return serverList[rand.Intn(serverNum)]
