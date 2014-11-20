@@ -21,6 +21,8 @@ import (
 	"encoding/binary"
 	"github.com/funny/link"
 	"math/rand"
+	"time"
+	"strconv"
 )
 
 var InputConfFile = flag.String("conf_file", "gateway.json", "input conf file name")   
@@ -51,8 +53,6 @@ func connectSessionManagerServer(cfg Config) (*link.Session, error) {
 	return client, err
 }
 
-
-
 func main() {
 	flag.Parse()
 	cfg, err := LoadConfig(*InputConfFile)
@@ -73,18 +73,36 @@ func main() {
 		log.Fatal(err.Error())
 		return
 	}
+	
+	defer sessionManager.Close(nil)
+
 	server.AcceptLoop(func(session *link.Session) {
 		log.Println("client", session.Conn().RemoteAddr().String(), "in")
 		msgServer := selectServer(cfg.MsgServerList, cfg.MsgServerNum)
-		session.Send(link.Binary(msgServer))
+		
+		inMsg, err := session.Read()
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		log.Println(string(inMsg))
+		
+		err = session.Send(link.Binary(msgServer))
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
 		sessionStore := NewSessionStore()
 		sessionStore.ClientAddr = session.Conn().RemoteAddr().String()
 		sessionStore.MsgServerAddr = msgServer
-		sessionManager.Send(link.JSON {
+		sessionStore.ID = strconv.FormatUint(session.Id(), 10)
+		
+		err = sessionManager.Send(link.JSON {
 			sessionStore,
 			0,
 		})
-
+		if err != nil {
+			log.Fatal(err.Error())
+		}
 		session.Close(nil)
 		log.Println("client", session.Conn().RemoteAddr().String(), "close")
 	})
