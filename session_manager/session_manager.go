@@ -44,7 +44,7 @@ func main() {
 	
 	redisOptions := redis_store.RedisStoreOptions {
 			Network :   "tcp",
-			Address :   ":6379",
+			Address :   cfg.RedisPost,
 			Database :  1,
 			KeyPrefix : "sess",
 	}

@@ -27,6 +27,7 @@ type Config struct {
 	Listen string
 	LogFile    string
 	RedisServer string
+	RedisPost string
 }
 
 func LoadConfig(configfile string) (cfg Config, err error) {
