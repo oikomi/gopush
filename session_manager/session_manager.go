@@ -46,7 +46,7 @@ func main() {
 			Network :   "tcp",
 			Address :   cfg.RedisPost,
 			Database :  1,
-			KeyPrefix : "sess",
+			KeyPrefix : "push",
 	}
 
 	redisStore := redis_store.NewRedisStore(&redisOptions)
@@ -64,7 +64,10 @@ func main() {
 			log.Fatalln("error:", err)
 		}
 
-		redisStore.Set(&ss)
+		err = redisStore.Set(&ss)
+		if err != nil {
+			log.Fatalln("error:", err)
+		}
 	})
 
 	log.Println("client", session.Conn().RemoteAddr().String(), "close")

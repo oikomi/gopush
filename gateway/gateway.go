@@ -80,13 +80,12 @@ func main() {
 		sessionStore := NewSessionStore()
 		sessionStore.ClientAddr = session.Conn().RemoteAddr().String()
 		sessionStore.MsgServerAddr = msgServer
-		sessionManager.Send(link.JSON{
+		sessionManager.Send(link.JSON {
 			sessionStore,
-			15,
+			0,
 		})
-		//sessionManager.Send(link.Binary(session.Conn().RemoteAddr().String()))	
+
 		session.Close(nil)
 		log.Println("client", session.Conn().RemoteAddr().String(), "close")
-
 	})
 }
