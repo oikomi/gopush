@@ -1,5 +1,6 @@
 {
 	"TransportProtocols" : "tcp",
-	"Listen": "127.0.0.1:17000",
-	"LogFile": "login_server.log"
+	"Listen" : "127.0.0.1:17000",
+	"LogFile" : "login_server.log",
+	"RedisServer" : "127.0.0.1:6379"
 }

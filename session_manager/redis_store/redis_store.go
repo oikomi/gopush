@@ -14,7 +14,7 @@
 // limitations under the License.
 
 
-package storage
+package redis_store
 
 
 import (
@@ -27,6 +27,13 @@ import (
 var (
 	ErrNoKeyPrefix = errors.New("cannot get session keys without a key prefix")
 )
+
+type StoreSession struct {
+	ClientAddr string
+	MsgServerAddr string
+	ID string
+	MaxAge time.Duration
+}
 
 type RedisStoreOptions struct {
 	Network              string
@@ -57,7 +64,7 @@ func NewRedisStore(opts *RedisStoreOptions) *RedisStore {
 }
 
 // Get the session from the store.
-func (this *RedisStore) Get(id string) (*Session, error) {
+func (this *RedisStore) Get(id string) (*StoreSession, error) {
 	key := id
 	if this.opts.KeyPrefix != "" {
 		key = this.opts.KeyPrefix + ":" + id
@@ -66,7 +73,7 @@ func (this *RedisStore) Get(id string) (*Session, error) {
 	if err != nil {
 		return nil, err
 	}
-	var sess Session
+	var sess StoreSession
 	err = json.Unmarshal(b, &sess)
 	if err != nil {
 		return nil, err
@@ -75,16 +82,16 @@ func (this *RedisStore) Get(id string) (*Session, error) {
 }
 
 // Save the session into the store.
-func (this *RedisStore) Set(sess *Session) error {
+func (this *RedisStore) Set(sess *StoreSession) error {
 	b, err := json.Marshal(sess)
 	if err != nil {
 		return err
 	}
-	key := sess.ID()
+	key := sess.ID
 	if this.opts.KeyPrefix != "" {
-		key = this.opts.KeyPrefix + ":" + sess.ID()
+		key = this.opts.KeyPrefix + ":" + sess.ID
 	}
-	ttl := sess.MaxAge()
+	ttl := sess.MaxAge
 	if ttl == 0 {
 		// Browser session, set to specified TTL
 		ttl = this.opts.BrowserSessServerTTL
@@ -145,6 +152,4 @@ func (this *RedisStore) getSessionKeys() ([]interface{}, error) {
 	}
 	return nil, ErrNoKeyPrefix
 }
-
-
 

@@ -20,20 +20,10 @@ import (
 	"log"
 	"encoding/binary"
 	"github.com/funny/link"
+	"github.com/oikomi/gopush/session_manager/redis_store"
 )
 
 var InputConfFile = flag.String("conf_file", "session_manager.json", "input conf file name")   
-
-func handler(session *link.Session) {
-	log.Println("client", session.Conn().RemoteAddr().String(), "in")
-
-	session.ReadLoop(func(msg link.InMessage) {
-		log.Println("client", session.Conn().RemoteAddr().String(),"say:", string(msg))
-		session.Send(link.Binary(msg))
-	})
-
-	log.Println("client", session.Conn().RemoteAddr().String(), "close")
-}
 
 func main() {
 	flag.Parse()
@@ -51,5 +41,30 @@ func main() {
 	}
 	log.Println("server start:", server.Listener().Addr().String())
 	
-	server.AcceptLoop(handler)
+	redisOptions := redis_store.RedisStoreOptions {
+			Network :   "tcp",
+			Address :   ":6379",
+			Database :  1,
+			KeyPrefix : "sess",
+	}
+
+	redisStore := redis_store.NewRedisStore(&redisOptions)
+	
+	server.AcceptLoop(func(session *link.Session) {
+	log.Println("client", session.Conn().RemoteAddr().String(), "in")
+
+	session.ReadLoop(func(msg link.InMessage) {
+		log.Println("client", session.Conn().RemoteAddr().String(),"say:", string(msg))
+		redisStore.Set(redis_store.StoreSession {
+			ClientAddr : msg.ClientAddr,
+			MsgServerAddr : msg.MsgServerAddr,
+		})
+		
+	})
+	
+
+
+
+	log.Println("client", session.Conn().RemoteAddr().String(), "close")
+	})
 }
