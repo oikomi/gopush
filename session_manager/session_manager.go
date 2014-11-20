@@ -27,7 +27,7 @@ var InputConfFile = flag.String("conf_file", "session_manager.json", "input conf
 func handler(session *link.Session) {
 	log.Println("client", session.Conn().RemoteAddr().String(), "in")
 
-	session.ReadLoop(func(msg []byte) {
+	session.ReadLoop(func(msg link.InMessage) {
 		log.Println("client", session.Conn().RemoteAddr().String(),"say:", string(msg))
 		session.Send(link.Binary(msg))
 	})
