@@ -29,6 +29,7 @@ var (
 )
 
 type StoreSession struct {
+	ClientID string
 	ClientAddr string
 	MsgServerAddr string
 	ID string
@@ -87,9 +88,9 @@ func (this *RedisStore) Set(sess *StoreSession) error {
 	if err != nil {
 		return err
 	}
-	key := sess.ID
+	key := sess.ClientID
 	if this.opts.KeyPrefix != "" {
-		key = this.opts.KeyPrefix + ":" + sess.ID
+		key = this.opts.KeyPrefix + ":" + sess.ClientID
 	}
 	ttl := sess.MaxAge
 	if ttl == 0 {

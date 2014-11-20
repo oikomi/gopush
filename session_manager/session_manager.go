@@ -18,6 +18,7 @@ package main
 import (
 	"flag"
 	"log"
+	"time"
 	"encoding/binary"
 	"encoding/json"
 	"github.com/funny/link"
@@ -44,7 +45,10 @@ func main() {
 	
 	redisOptions := redis_store.RedisStoreOptions {
 			Network :   "tcp",
-			Address :   cfg.RedisPost,
+			Address :   cfg.Redis.Port,
+			ConnectTimeout : time.Duration(cfg.Redis.ConnectTimeout)*time.Millisecond,
+			ReadTimeout : time.Duration(cfg.Redis.ReadTimeout)*time.Millisecond,
+			WriteTimeout : time.Duration(cfg.Redis.WriteTimeout)*time.Millisecond,
 			Database :  1,
 			KeyPrefix : "push",
 	}

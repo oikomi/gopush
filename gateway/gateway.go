@@ -28,6 +28,7 @@ import (
 var InputConfFile = flag.String("conf_file", "gateway.json", "input conf file name")   
 
 type SessionStore struct {
+	ClientID string
 	ClientAddr string
 	MsgServerAddr string
 	ID string
@@ -36,6 +37,12 @@ type SessionStore struct {
 
 func NewSessionStore() *SessionStore {
 	return &SessionStore{}
+}
+
+func (self *SessionStore)checkClientID(clientID string) bool {
+	
+	
+	return true
 }
 
 func selectServer(serverList []string, serverNum int) string{
@@ -92,6 +99,7 @@ func main() {
 		}
 
 		sessionStore := NewSessionStore()
+		sessionStore.ClientID = string(inMsg)
 		sessionStore.ClientAddr = session.Conn().RemoteAddr().String()
 		sessionStore.MsgServerAddr = msgServer
 		sessionStore.ID = strconv.FormatUint(session.Id(), 10)

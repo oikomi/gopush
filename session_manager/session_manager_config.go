@@ -19,6 +19,7 @@ import (
 	"os"
 	"encoding/json"
 	//"flag"
+	"time"
 	"log"
 )
 
@@ -26,8 +27,13 @@ type Config struct {
 	TransportProtocols string
 	Listen string
 	LogFile    string
-	RedisServer string
-	RedisPost string
+	Redis struct { 
+		Addr string 
+		Port string
+		ConnectTimeout time.Duration
+		ReadTimeout time.Duration
+		WriteTimeout time.Duration
+	} 
 }
 
 func LoadConfig(configfile string) (cfg Config, err error) {
