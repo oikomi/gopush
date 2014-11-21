@@ -24,9 +24,11 @@ import (
 )
 
 type Config struct {
+	LocalIP string
 	TransportProtocols string
 	Listen string
 	LogFile    string
+	SessionManagerServerList []string
 	Redis struct { 
 		Addr string 
 		Port string

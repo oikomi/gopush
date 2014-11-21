@@ -1,7 +1,12 @@
 {
+	"LocalIP" : "127.0.0.1",
 	"TransportProtocols" : "tcp",
 	"Listen" : "127.0.0.1:19000",
 	"LogFile" : "msg_server.log",
+	
+	"SessionManagerServerList" : [
+		"127.0.0.1:18000"
+	]
 	
 	"Redis" : { 
 		"Addr" : "127.0.0.1", 
@@ -10,4 +15,5 @@
 		"ReadTimeout" : 1000,
 		"WriteTimeout" : 1000
 	}
+	
 }

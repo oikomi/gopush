@@ -20,11 +20,22 @@ import (
 	"log"
 	"encoding/binary"
 	"github.com/funny/link"
-	//"math/rand"
-	//"strconv"
+	"strconv"
 )
 
 var InputConfFile = flag.String("conf_file", "msg_server.json", "input conf file name")   
+
+
+func connectSessionManagerServer(cfg Config) (*link.Session, error) {
+	protocol := link.PacketN(2, binary.BigEndian)
+	client, err := link.Dial("tcp", selectServer(cfg.SessionManagerServerList, len(cfg.SessionManagerServerList)), protocol)
+	if err != nil {
+		log.Fatal(err.Error())
+		panic(err)
+	}
+
+	return client, err
+}
 
 func main() {
 	flag.Parse()
@@ -41,9 +52,37 @@ func main() {
 		panic(err)
 	}
 	log.Println("server start:", server.Listener().Addr().String())
+	
+	sessionManager, err := connectSessionManagerServer(cfg)
+	if err != nil {
+		log.Fatal(err.Error())
+		return
+	}
+	
+	defer sessionManager.Close(nil)
 
 	server.AcceptLoop(func(session *link.Session) {
 		log.Println("client", session.Conn().RemoteAddr().String(), "in")
+		
+		inMsg, err := session.Read()
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		log.Println(string(inMsg))
+		
+		sessionStore := NewSessionStore()
+		sessionStore.ClientID = string(inMsg)
+		sessionStore.ClientAddr = session.Conn().RemoteAddr().String()
+		sessionStore.MsgServerAddr = cfg.LocalIP
+		sessionStore.ID = strconv.FormatUint(session.Id(), 10)
+		
+		err = sessionManager.Send(link.JSON {
+			sessionStore,
+			0,
+		})
+		if err != nil {
+			log.Fatal(err.Error())
+		}
 		
 		session.ReadLoop(func(msg link.InMessage) {
 			//log("client", session.Conn().RemoteAddr().String(), "say:", string(msg))

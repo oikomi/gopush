@@ -1,6 +1,6 @@
 {
 	"TransportProtocols" : "tcp",
-	"Listen" : "127.0.0.1:18000",
+	"Listen" : "127.0.0.1:17000",
 	"LogFile" : "gateway.log",
 	"MsgServerList" : [
 		"127.0.0.1:19000",
@@ -8,6 +8,6 @@
 	],
 	"MsgServerNum": 2,
 	"SessionManagerServerList" : [
-		"127.0.0.1:17000"
+		"127.0.0.1:18000"
 	]
 }
