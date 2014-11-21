@@ -3,10 +3,9 @@
 	"Listen" : "127.0.0.1:18000",
 	"LogFile" : "gateway.log",
 	"MsgServerList" : [
-		"127.0.0.1:19000",
-		"127.0.0.1:19001"
+		"127.0.0.1:19000"
 	],
-	"MsgServerNum": 2,
+	"MsgServerNum": 1,
 	"SessionManagerServerList" : [
 		"127.0.0.1:17000"
 	]

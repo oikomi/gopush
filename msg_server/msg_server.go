@@ -44,6 +44,11 @@ func main() {
 
 	server.AcceptLoop(func(session *link.Session) {
 		log.Println("client", session.Conn().RemoteAddr().String(), "in")
+		
+		session.ReadLoop(func(msg link.InMessage) {
+			log("client", session.Conn().RemoteAddr().String(), "say:", string(msg))
+			session.Send(link.Binary(msg))
+		})
 
 	})
 }
