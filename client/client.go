@@ -36,7 +36,7 @@ func main() {
 	
 	protocol := link.PacketN(2, binary.BigEndian)
 
-	client, err := link.Dial("tcp", cfg.GatewayServer, protocol)
+	gatewayClient, err := link.Dial("tcp", cfg.GatewayServer, protocol)
 	if err != nil {
 		panic(err)
 	}
@@ -45,20 +45,21 @@ func main() {
 	if _, err := fmt.Scanf("%s\n", &input); err != nil {
 		log.Fatal(err.Error())
 	}
-	err = client.Send(link.Binary(input))
+
+	err = gatewayClient.Send(link.Binary(input))
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 	
-	inMsg, err := client.Read()
+	inMsg, err := gatewayClient.Read()
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 	log.Println(string(inMsg))
 
-	client.Close(nil)
+	gatewayClient.Close(nil)
 
-	client, err = link.Dial("tcp", string(inMsg), protocol)
+	_, err = link.Dial("tcp", string(inMsg), protocol)
 	if err != nil {
 		panic(err)
 	}

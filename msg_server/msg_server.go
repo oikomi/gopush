@@ -46,7 +46,7 @@ func main() {
 		log.Println("client", session.Conn().RemoteAddr().String(), "in")
 		
 		session.ReadLoop(func(msg link.InMessage) {
-			log("client", session.Conn().RemoteAddr().String(), "say:", string(msg))
+			//log("client", session.Conn().RemoteAddr().String(), "say:", string(msg))
 			session.Send(link.Binary(msg))
 		})
 
