@@ -59,9 +59,15 @@ func main() {
 
 	gatewayClient.Close(nil)
 
-	_, err = link.Dial("tcp", string(inMsg), protocol)
+	msgServerClient, err := link.Dial("tcp", string(inMsg), protocol)
 	if err != nil {
 		panic(err)
 	}
-
+	
+	defer msgServerClient.Close(nil)
+	
+	msgServerClient.ReadLoop(func(msg link.InMessage) {
+		log.Println("client", msgServerClient.Conn().RemoteAddr().String(),"say:", string(msg))
+		
+	})
 }
