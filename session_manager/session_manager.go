@@ -72,6 +72,7 @@ func main() {
 		if err != nil {
 			log.Fatalln("error:", err)
 		}
+
 	})
 
 	log.Println("client", session.Conn().RemoteAddr().String(), "close")
