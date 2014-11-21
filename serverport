@@ -1,5 +1,5 @@
-gateway 18000
+gateway 17000
 
-session_manager 17000
+session_manager 18000
 
 msg_server 19000
