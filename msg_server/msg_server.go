@@ -79,7 +79,6 @@ func main() {
 		
 		err = sessionManager.Send(link.JSON {
 			sessionStore,
-			0,
 		})
 		if err != nil {
 			log.Fatal(err.Error())
