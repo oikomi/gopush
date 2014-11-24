@@ -43,26 +43,26 @@ func connectMsgServer(ms string) (*link.Session, error) {
 }
 
 func handleMsgServerClient(msc *link.Session, redisStore *redis_store.RedisStore) {
-		msc.ReadLoop(func(msg link.InBuffer) {
-			log.Println("client", msc.Conn().RemoteAddr().String(),"say:", string(msg.Get()))
-			
-			var ss redis_store.StoreSession
-			
-			log.Println(string(msg.Get()))
-			
-			err := json.Unmarshal(msg.Get(), &ss)
-			if err != nil {
-				log.Fatalln("error:", err)
-			}
+	msc.ReadLoop(func(msg link.InBuffer) {
+		log.Println("client", msc.Conn().RemoteAddr().String(),"say:", string(msg.Get()))
+		
+		var ss redis_store.StoreSession
+		
+		log.Println(string(msg.Get()))
+		
+		err := json.Unmarshal(msg.Get(), &ss)
+		if err != nil {
+			log.Fatalln("error:", err)
+		}
 
-			err = redisStore.Set(&ss)
-			if err != nil {
-				log.Fatalln("error:", err)
-			}
+		err = redisStore.Set(&ss)
+		if err != nil {
+			log.Fatalln("error:", err)
+		}
 
-		})
+	})
 
-		log.Println("client", msc.Conn().RemoteAddr().String(), "close")
+	log.Println("client", msc.Conn().RemoteAddr().String(), "close")
 }
 
 func subscribeChannels(cfg Config, redisStore *redis_store.RedisStore) {
