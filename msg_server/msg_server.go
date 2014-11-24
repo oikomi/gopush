@@ -42,48 +42,6 @@ func (self *MsgServer)initChannels() {
 	self.channels[SYSCTRL_CLIENT_STATUS] = channel
 }
 
-func (self *MsgServer)managerChannels() {
-	ms.server.AcceptLoop(func(session *link.Session) {
-		log.Println("client", session.Conn().RemoteAddr().String(), "in")
-		
-		inMsg, err := session.Read()
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-		log.Println(string(inMsg.Get()))
-
-		sessionStore := NewSessionStore()
-		sessionStore.ClientID = string(inMsg.Get())
-		sessionStore.ClientAddr = session.Conn().RemoteAddr().String()
-		sessionStore.MsgServerAddr = cfg.LocalIP
-		sessionStore.ID = strconv.FormatUint(session.Id(), 10)
-		
-		err = sessionManager.Send(link.JSON {
-			sessionStore,
-		})
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-		
-		session.ReadLoop(func(msg link.InBuffer) {
-			//log("client", session.Conn().RemoteAddr().String(), "say:", string(msg.Get()))
-			//session.Send(link.Binary(msg.Get()))
-		})
-
-	})
-}
-
-func connectSessionManagerServer(cfg Config) (*link.Session, error) {
-	protocol := link.PacketN(2, link.BigEndianBO, link.LittleEndianBF)
-	client, err := link.Dial("tcp", selectServer(cfg.SessionManagerServerList, len(cfg.SessionManagerServerList)), protocol)
-	if err != nil {
-		log.Fatal(err.Error())
-		panic(err)
-	}
-
-	return client, err
-}
-
 func main() {
 	flag.Parse()
 	cfg, err := LoadConfig(*InputConfFile)
@@ -103,17 +61,6 @@ func main() {
 	log.Println("server start:", ms.server.Listener().Addr().String())
 	
 	ms.initChannels()
-	
-	
-	sessionManager, err := connectSessionManagerServer(cfg)
-	if err != nil {
-		log.Fatal(err.Error())
-		return
-	}
-	
-	defer sessionManager.Close(nil)
-	
-	go ms.managerChannels()
 
 	ms.server.AcceptLoop(func(session *link.Session) {
 		log.Println("client", session.Conn().RemoteAddr().String(), "in")
@@ -130,19 +77,11 @@ func main() {
 		sessionStore.MsgServerAddr = cfg.LocalIP
 		sessionStore.ID = strconv.FormatUint(session.Id(), 10)
 		
-		log.Println(sessionStore)
-		
-		err = sessionManager.Send(link.JSON {
+		err = session.Send(link.JSON {
 			sessionStore,
 		})
 		if err != nil {
 			log.Fatal(err.Error())
 		}
-		
-		session.ReadLoop(func(msg link.InBuffer) {
-			//log("client", session.Conn().RemoteAddr().String(), "say:", string(msg.Get()))
-			//session.Send(link.Binary(msg.Get()))
-		})
-
 	})
 }

@@ -44,11 +44,6 @@ func main() {
 	if _, err := fmt.Scanf("%s\n", &input); err != nil {
 		log.Fatal(err.Error())
 	}
-
-	err = gatewayClient.Send(link.Binary(input))
-	if err != nil {
-		log.Fatal(err.Error())
-	}
 	
 	inMsg, err := gatewayClient.Read()
 	if err != nil {
@@ -61,6 +56,11 @@ func main() {
 	msgServerClient, err := link.Dial("tcp", string(inMsg.Get()), protocol)
 	if err != nil {
 		panic(err)
+	}
+	
+	err = msgServerClient.Send(link.Binary(input))
+	if err != nil {
+		log.Fatal(err.Error())
 	}
 	
 	defer msgServerClient.Close(nil)

@@ -26,7 +26,8 @@ type Cmd struct {
 
 func NewCmd() *Cmd {
 	return &Cmd {
-		
+		Cmd : "",
+		Args : make([]string, 3),
 	}
 }
 

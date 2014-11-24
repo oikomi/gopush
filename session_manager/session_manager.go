@@ -59,7 +59,6 @@ func handleMsgServerClient(msc *link.Session, redisStore *redis_store.RedisStore
 		if err != nil {
 			log.Fatalln("error:", err)
 		}
-
 	})
 
 	log.Println("client", msc.Conn().RemoteAddr().String(), "close")
@@ -119,4 +118,8 @@ func main() {
 	redisStore := redis_store.NewRedisStore(&redisOptions)
 
 	go subscribeChannels(cfg, redisStore)
+	
+	server.AcceptLoop(func(session *link.Session) {
+	
+	})
 }
