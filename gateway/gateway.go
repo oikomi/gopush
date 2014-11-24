@@ -18,7 +18,6 @@ package main
 import (
 	"flag"
 	"log"
-	"encoding/binary"
 	"github.com/funny/link"
 	"math/rand"
 )
@@ -38,7 +37,7 @@ func main() {
 		return
 	}
 	
-	protocol := link.PacketN(2, binary.BigEndian)
+	protocol := link.PacketN(2, link.BigEndianBO, link.LittleEndianBF)
 	
 	server, err := link.Listen(cfg.TransportProtocols, cfg.Listen, protocol)
 	if err != nil {

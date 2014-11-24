@@ -16,7 +16,6 @@
 package main
 
 import (
-	"encoding/binary"
 	"fmt"
 	"flag"
 	"log"
@@ -34,7 +33,7 @@ func main() {
 		return
 	}
 	
-	protocol := link.PacketN(2, binary.BigEndian)
+	protocol := link.PacketN(2, link.BigEndianBO, link.LittleEndianBF)
 
 	gatewayClient, err := link.Dial("tcp", cfg.GatewayServer, protocol)
 	if err != nil {
@@ -55,19 +54,19 @@ func main() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	log.Println(string(inMsg))
+	//log.Println(string(inMsg))
 
 	gatewayClient.Close(nil)
 
-	msgServerClient, err := link.Dial("tcp", string(inMsg), protocol)
+	msgServerClient, err := link.Dial("tcp", string(inMsg.Get()), protocol)
 	if err != nil {
 		panic(err)
 	}
 	
 	defer msgServerClient.Close(nil)
 	
-	msgServerClient.ReadLoop(func(msg link.InMessage) {
-		log.Println("client", msgServerClient.Conn().RemoteAddr().String(),"say:", string(msg))
+	msgServerClient.ReadLoop(func(msg link.InBuffer) {
+		log.Println("client", msgServerClient.Conn().RemoteAddr().String(),"say:", string(msg.Get()))
 		
 	})
 }

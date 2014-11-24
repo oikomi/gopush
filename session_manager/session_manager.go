@@ -35,7 +35,7 @@ func main() {
 		return
 	}
 	
-	protocol := link.PacketN(2, binary.BigEndian)
+	protocol := link.PacketN(2, link.BigEndianBO, link.LittleEndianBF)
 	
 	server, err := link.Listen(cfg.TransportProtocols, cfg.Listen, protocol)
 	if err != nil {
@@ -58,7 +58,7 @@ func main() {
 	server.AcceptLoop(func(session *link.Session) {
 	log.Println("client", session.Conn().RemoteAddr().String(), "in")
 
-	session.ReadLoop(func(msg link.InMessage) {
+	session.ReadLoop(func(msg link.InBuffer) {
 		log.Println("client", session.Conn().RemoteAddr().String(),"say:", string(msg))
 		
 		var ss redis_store.StoreSession

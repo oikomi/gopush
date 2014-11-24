@@ -18,7 +18,6 @@ package main
 import (
 	"flag"
 	"log"
-	"encoding/binary"
 	"github.com/funny/link"
 	"strconv"
 )
@@ -27,7 +26,7 @@ var InputConfFile = flag.String("conf_file", "msg_server.json", "input conf file
 
 
 func connectSessionManagerServer(cfg Config) (*link.Session, error) {
-	protocol := link.PacketN(2, binary.BigEndian)
+	protocol := link.PacketN(2, link.BigEndianBO, link.LittleEndianBF)
 	client, err := link.Dial("tcp", selectServer(cfg.SessionManagerServerList, len(cfg.SessionManagerServerList)), protocol)
 	if err != nil {
 		log.Fatal(err.Error())
@@ -45,7 +44,7 @@ func main() {
 		return
 	}
 	
-	protocol := link.PacketN(2, binary.BigEndian)
+	protocol := link.PacketN(2, link.BigEndianBO, link.LittleEndianBF)
 	
 	server, err := link.Listen(cfg.TransportProtocols, cfg.Listen, protocol)
 	if err != nil {
@@ -68,10 +67,10 @@ func main() {
 		if err != nil {
 			log.Fatal(err.Error())
 		}
-		log.Println(string(inMsg))
+		log.Println(string(inMsg.Get()))
 		
 		sessionStore := NewSessionStore()
-		sessionStore.ClientID = string(inMsg)
+		sessionStore.ClientID = string(inMsg.Get())
 		sessionStore.ClientAddr = session.Conn().RemoteAddr().String()
 		sessionStore.MsgServerAddr = cfg.LocalIP
 		sessionStore.ID = strconv.FormatUint(session.Id(), 10)
@@ -84,9 +83,9 @@ func main() {
 			log.Fatal(err.Error())
 		}
 		
-		session.ReadLoop(func(msg link.InMessage) {
-			//log("client", session.Conn().RemoteAddr().String(), "say:", string(msg))
-			session.Send(link.Binary(msg))
+		session.ReadLoop(func(msg link.InBuffer) {
+			//log("client", session.Conn().RemoteAddr().String(), "say:", string(msg.Get()))
+			session.Send(link.Binary(msg.Get()))
 		})
 
 	})
