@@ -15,6 +15,11 @@
 
 package main
 
+import (
+	"github.com/funny/link"
+)
+
+type ChannelMap map[string]*link.Channel
 
 const (
 	SYSCTRL_CLIENT_STATUS = "/sysctrl/client-status"

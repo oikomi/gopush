@@ -24,6 +24,23 @@ import (
 
 var InputConfFile = flag.String("conf_file", "msg_server.json", "input conf file name")   
 
+type MsgServer struct {
+	channels ChannelMap
+	server *link.Server
+}
+
+func NewMsgServer() *MsgServer {
+	ms := &MsgServer {
+		channels : make(ChannelMap),
+	}
+	
+	return ms
+}
+
+func initChannels(ms *MsgServer) {
+	channel := link.NewChannel(ms.server.Protocol())
+	ms.channels[SYSCTRL_CLIENT_STATUS] = channel
+}
 
 func connectSessionManagerServer(cfg Config) (*link.Session, error) {
 	protocol := link.PacketN(2, link.BigEndianBO, link.LittleEndianBF)
@@ -44,13 +61,18 @@ func main() {
 		return
 	}
 	
+	ms := NewMsgServer()
+	
 	protocol := link.PacketN(2, link.BigEndianBO, link.LittleEndianBF)
 	
-	server, err := link.Listen(cfg.TransportProtocols, cfg.Listen, protocol)
+	ms.server, err = link.Listen(cfg.TransportProtocols, cfg.Listen, protocol)
 	if err != nil {
 		panic(err)
 	}
-	log.Println("server start:", server.Listener().Addr().String())
+	log.Println("server start:", ms.server.Listener().Addr().String())
+	
+	initChannels(ms)
+	
 	
 	sessionManager, err := connectSessionManagerServer(cfg)
 	if err != nil {
@@ -60,7 +82,7 @@ func main() {
 	
 	defer sessionManager.Close(nil)
 
-	server.AcceptLoop(func(session *link.Session) {
+	ms.server.AcceptLoop(func(session *link.Session) {
 		log.Println("client", session.Conn().RemoteAddr().String(), "in")
 		
 		inMsg, err := session.Read()
