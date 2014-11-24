@@ -19,7 +19,6 @@ import (
 	"flag"
 	"log"
 	"time"
-	"encoding/binary"
 	"encoding/json"
 	"github.com/funny/link"
 	"github.com/oikomi/gopush/session_manager/redis_store"
@@ -59,11 +58,11 @@ func main() {
 	log.Println("client", session.Conn().RemoteAddr().String(), "in")
 
 	session.ReadLoop(func(msg link.InBuffer) {
-		log.Println("client", session.Conn().RemoteAddr().String(),"say:", string(msg))
+		log.Println("client", session.Conn().RemoteAddr().String(),"say:", string(msg.Get()))
 		
 		var ss redis_store.StoreSession
 		
-		err := json.Unmarshal(msg, &ss)
+		err := json.Unmarshal(msg.Get(), &ss)
 		if err != nil {
 			log.Fatalln("error:", err)
 		}
