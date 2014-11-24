@@ -27,6 +27,7 @@ type Config struct {
 	TransportProtocols string
 	Listen string
 	LogFile    string
+	MsgServerList []string
 	Redis struct { 
 		Addr string 
 		Port string

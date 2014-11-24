@@ -22,9 +22,73 @@ import (
 	"encoding/json"
 	"github.com/funny/link"
 	"github.com/oikomi/gopush/session_manager/redis_store"
+	"github.com/oikomi/gopush/protocol"
 )
 
-var InputConfFile = flag.String("conf_file", "session_manager.json", "input conf file name")   
+var InputConfFile = flag.String("conf_file", "session_manager.json", "input conf file name")
+
+type SessionManager struct {
+	
+}   
+
+func connectMsgServer(ms string) (*link.Session, error) {
+	p := link.PacketN(2, link.BigEndianBO, link.LittleEndianBF)
+	client, err := link.Dial("tcp", ms, p)
+	if err != nil {
+		log.Fatal(err.Error())
+		panic(err)
+	}
+
+	return client, err
+}
+
+func handleMsgServerClient(msc *link.Session, redisStore *redis_store.RedisStore) {
+		msc.ReadLoop(func(msg link.InBuffer) {
+			log.Println("client", msc.Conn().RemoteAddr().String(),"say:", string(msg.Get()))
+			
+			var ss redis_store.StoreSession
+			
+			log.Println(string(msg.Get()))
+			
+			err := json.Unmarshal(msg.Get(), &ss)
+			if err != nil {
+				log.Fatalln("error:", err)
+			}
+
+			err = redisStore.Set(&ss)
+			if err != nil {
+				log.Fatalln("error:", err)
+			}
+
+		})
+
+		log.Println("client", msc.Conn().RemoteAddr().String(), "close")
+}
+
+func subscribeChannels(cfg Config, redisStore *redis_store.RedisStore) {
+	var msgServerClientList []*link.Session
+	for _, ms := range cfg.MsgServerList {
+		msgServerClient, err := connectMsgServer(ms)
+		if err != nil {
+			log.Fatal(err.Error())
+			return
+		}
+		cmd := protocol.NewCmd()
+		
+		cmd.Cmd = protocol.SUBSCRIBE_CHANNEL_CMD
+		cmd.Args[0] = SYSCTRL_CLIENT_STATUS
+		
+		msgServerClient.Send(link.JSON {
+			cmd,
+		})
+		
+		msgServerClientList = append(msgServerClientList, msgServerClient)
+	}
+
+	for _, msc := range msgServerClientList {
+		go handleMsgServerClient(msc, redisStore)
+	}
+}
 
 func main() {
 	flag.Parse()
@@ -34,9 +98,9 @@ func main() {
 		return
 	}
 	
-	protocol := link.PacketN(2, link.BigEndianBO, link.LittleEndianBF)
+	p := link.PacketN(2, link.BigEndianBO, link.LittleEndianBF)
 	
-	server, err := link.Listen(cfg.TransportProtocols, cfg.Listen, protocol)
+	server, err := link.Listen(cfg.TransportProtocols, cfg.Listen, p)
 	if err != nil {
 		panic(err)
 	}
@@ -53,29 +117,6 @@ func main() {
 	}
 
 	redisStore := redis_store.NewRedisStore(&redisOptions)
-	
-	server.AcceptLoop(func(session *link.Session) {
-	log.Println("client", session.Conn().RemoteAddr().String(), "in")
 
-	session.ReadLoop(func(msg link.InBuffer) {
-		log.Println("client", session.Conn().RemoteAddr().String(),"say:", string(msg.Get()))
-		
-		var ss redis_store.StoreSession
-		
-		log.Println(string(msg.Get()))
-		
-		err := json.Unmarshal(msg.Get(), &ss)
-		if err != nil {
-			log.Fatalln("error:", err)
-		}
-
-		err = redisStore.Set(&ss)
-		if err != nil {
-			log.Fatalln("error:", err)
-		}
-
-	})
-
-	log.Println("client", session.Conn().RemoteAddr().String(), "close")
-	})
+	go subscribeChannels(cfg, redisStore)
 }
