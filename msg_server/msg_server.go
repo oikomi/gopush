@@ -75,6 +75,8 @@ func main() {
 		sessionStore.MsgServerAddr = cfg.LocalIP
 		sessionStore.ID = strconv.FormatUint(session.Id(), 10)
 		
+		log.Println(sessionStore)
+		
 		err = sessionManager.Send(link.JSON {
 			sessionStore,
 			0,
@@ -85,7 +87,7 @@ func main() {
 		
 		session.ReadLoop(func(msg link.InBuffer) {
 			//log("client", session.Conn().RemoteAddr().String(), "say:", string(msg.Get()))
-			session.Send(link.Binary(msg.Get()))
+			//session.Send(link.Binary(msg.Get()))
 		})
 
 	})

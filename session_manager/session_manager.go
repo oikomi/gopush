@@ -62,6 +62,8 @@ func main() {
 		
 		var ss redis_store.StoreSession
 		
+		log.Println(string(msg.Get()))
+		
 		err := json.Unmarshal(msg.Get(), &ss)
 		if err != nil {
 			log.Fatalln("error:", err)

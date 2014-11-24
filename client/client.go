@@ -54,7 +54,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	//log.Println(string(inMsg))
+	log.Println(string(inMsg.Get()))
 
 	gatewayClient.Close(nil)
 

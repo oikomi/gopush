@@ -1,5 +1,5 @@
 {
 	"TransportProtocols" : "tcp",
 	"LogFile" : "client.log",
-	"GatewayServer" : "127.0.0.1:18000"
+	"GatewayServer" : "127.0.0.1:17000"
 }

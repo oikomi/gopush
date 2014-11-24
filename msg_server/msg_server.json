@@ -6,7 +6,7 @@
 	
 	"SessionManagerServerList" : [
 		"127.0.0.1:18000"
-	]
+	],
 	
 	"Redis" : { 
 		"Addr" : "127.0.0.1", 
