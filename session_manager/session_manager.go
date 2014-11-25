@@ -74,7 +74,7 @@ func subscribeChannels(cfg Config, redisStore *redis_store.RedisStore) {
 		}
 		cmd := protocol.NewCmd()
 		
-		cmd.Cmd = protocol.SUBSCRIBE_CHANNEL_CMD
+		cmd.CmdName = protocol.SUBSCRIBE_CHANNEL_CMD
 		cmd.Args = append(cmd.Args, SYSCTRL_CLIENT_STATUS)
 		
 		msgServerClient.Send(link.JSON {

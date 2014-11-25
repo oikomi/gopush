@@ -16,22 +16,23 @@
 package protocol
 
 const (
+	SEND_CLIENT_ID_CMD = "SEND_CLIENT_ID_CMD"
 	SUBSCRIBE_CHANNEL_CMD = "SUBSCRIBE_CHANNEL"
 )
 
 type Cmd struct {
-	Cmd string
+	CmdName string
 	Args []string
 }
 
 func NewCmd() *Cmd {
 	return &Cmd {
-		Cmd : "",
+		CmdName : "",
 		Args : make([]string, 0),
 	}
 }
 
 func (self *Cmd)ParseCmd(msglist []string) {
-	self.Cmd = msglist[1]
+	self.CmdName = msglist[1]
 	self.Args = msglist[2:]
 }

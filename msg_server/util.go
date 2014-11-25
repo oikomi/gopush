@@ -18,7 +18,10 @@ package main
 import (
 	"net"
 	"fmt"
+	"log"
 	"math/rand"
+	"encoding/json"
+	"github.com/oikomi/gopush/protocol"
 )
 
 func selectServer(serverList []string, serverNum int) string {
@@ -33,4 +36,21 @@ func getHostIP() {
 	for _, addr := range addrs {
 		fmt.Println(addr.String())
 	}
+}
+
+func parseCmd(cmd []byte) {
+	var c protocol.Cmd
+	
+	err := json.Unmarshal(cmd, &c)
+	if err != nil {
+		log.Fatalln("error:", err)
+	}
+	
+	switch c.CmdName {
+		case protocol.SUBSCRIBE_CHANNEL_CMD:
+			fmt.Println("one")
+		case protocol.SEND_CLIENT_ID_CMD:
+			fmt.Println("two")
+		}
+
 }

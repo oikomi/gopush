@@ -20,6 +20,7 @@ import (
 	"flag"
 	"log"
 	"github.com/funny/link"
+	"github.com/oikomi/gopush/protocol"
 )
 
 var InputConfFile = flag.String("conf_file", "client.json", "input conf file name")   
@@ -33,9 +34,9 @@ func main() {
 		return
 	}
 	
-	protocol := link.PacketN(2, link.BigEndianBO, link.LittleEndianBF)
+	p := link.PacketN(2, link.BigEndianBO, link.LittleEndianBF)
 
-	gatewayClient, err := link.Dial("tcp", cfg.GatewayServer, protocol)
+	gatewayClient, err := link.Dial("tcp", cfg.GatewayServer, p)
 	if err != nil {
 		panic(err)
 	}
@@ -53,12 +54,19 @@ func main() {
 
 	gatewayClient.Close(nil)
 
-	msgServerClient, err := link.Dial("tcp", string(inMsg.Get()), protocol)
+	msgServerClient, err := link.Dial("tcp", string(inMsg.Get()), p)
 	if err != nil {
 		panic(err)
 	}
 	
-	err = msgServerClient.Send(link.Binary(input))
+	cmd := protocol.NewCmd()
+	
+	cmd.CmdName = protocol.SEND_CLIENT_ID_CMD
+	cmd.Args = append(cmd.Args, input)
+	
+	err = msgServerClient.Send(link.JSON {
+		cmd,
+	})
 	if err != nil {
 		log.Fatal(err.Error())
 	}

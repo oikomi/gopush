@@ -52,9 +52,9 @@ func main() {
 	
 	ms := NewMsgServer()
 	
-	protocol := link.PacketN(2, link.BigEndianBO, link.LittleEndianBF)
+	p := link.PacketN(2, link.BigEndianBO, link.LittleEndianBF)
 	
-	ms.server, err = link.Listen(cfg.TransportProtocols, cfg.Listen, protocol)
+	ms.server, err = link.Listen(cfg.TransportProtocols, cfg.Listen, p)
 	if err != nil {
 		panic(err)
 	}
@@ -71,7 +71,7 @@ func main() {
 		}
 		log.Println(string(inMsg.Get()))
 		
-		
+		parseCmd(inMsg.Get())
 		
 		sessionStore := NewSessionStore()
 		sessionStore.ClientID = string(inMsg.Get())
