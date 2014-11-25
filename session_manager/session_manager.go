@@ -19,11 +19,37 @@ import (
 	"flag"
 	"log"
 	"time"
+	"fmt"
 	"encoding/json"
 	"github.com/funny/link"
 	"github.com/oikomi/gopush/session_manager/redis_store"
 	"github.com/oikomi/gopush/protocol"
 )
+
+/*
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+const char* build_time(void) {
+	static const char* psz_build_time = "["__DATE__ " " __TIME__ "]";
+	return psz_build_time;
+}
+*/
+import "C"
+
+var (
+	buildTime = C.GoString(C.build_time())
+)
+
+func BuildTime() string {
+	return buildTime
+}
+
+const VERSION string = "0.10"
+
+func version() {
+	fmt.Printf("session_manager version %s Copyright (c) 2014 Harold Miao (miaohonghit@gmail.com)  \n", VERSION)
+}
 
 var InputConfFile = flag.String("conf_file", "session_manager.json", "input conf file name")
 
@@ -90,6 +116,8 @@ func subscribeChannels(cfg Config, redisStore *redis_store.RedisStore) {
 }
 
 func main() {
+	version()
+	fmt.Printf("built on %s\n", BuildTime())
 	flag.Parse()
 	cfg, err := LoadConfig(*InputConfFile)
 	if err != nil {

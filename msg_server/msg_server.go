@@ -25,6 +25,32 @@ import (
 	"github.com/oikomi/gopush/protocol"
 )
 
+/*
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+const char* build_time(void) {
+	static const char* psz_build_time = "["__DATE__ " " __TIME__ "]";
+	return psz_build_time;
+}
+*/
+import "C"
+
+var (
+	buildTime = C.GoString(C.build_time())
+)
+
+func BuildTime() string {
+	return buildTime
+}
+
+const VERSION string = "0.10"
+
+func version() {
+	fmt.Printf("msg_server version %s Copyright (c) 2014 Harold Miao (miaohonghit@gmail.com)  \n", VERSION)
+}
+
+
 var InputConfFile = flag.String("conf_file", "msg_server.json", "input conf file name")   
 
 type MsgServer struct {
@@ -83,6 +109,8 @@ func (self *MsgServer)parseProtocol(cmd []byte, session *link.Session) {
 }
 
 func main() {
+	version()
+	fmt.Printf("built on %s\n", BuildTime())
 	flag.Parse()
 	cfg, err := LoadConfig(*InputConfFile)
 	if err != nil {
