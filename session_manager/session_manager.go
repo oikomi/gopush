@@ -44,7 +44,7 @@ func connectMsgServer(ms string) (*link.Session, error) {
 
 func handleMsgServerClient(msc *link.Session, redisStore *redis_store.RedisStore) {
 	msc.ReadLoop(func(msg link.InBuffer) {
-		log.Println("client", msc.Conn().RemoteAddr().String(),"say:", string(msg.Get()))
+		//log.Println("client", msc.Conn().RemoteAddr().String(),"say:", string(msg.Get()))
 		
 		var ss redis_store.StoreSession
 		
@@ -75,7 +75,7 @@ func subscribeChannels(cfg Config, redisStore *redis_store.RedisStore) {
 		cmd := protocol.NewCmd()
 		
 		cmd.Cmd = protocol.SUBSCRIBE_CHANNEL_CMD
-		cmd.Args[0] = SYSCTRL_CLIENT_STATUS
+		cmd.Args = append(cmd.Args, SYSCTRL_CLIENT_STATUS)
 		
 		msgServerClient.Send(link.JSON {
 			cmd,

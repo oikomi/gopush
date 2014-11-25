@@ -71,6 +71,8 @@ func main() {
 		}
 		log.Println(string(inMsg.Get()))
 		
+		
+		
 		sessionStore := NewSessionStore()
 		sessionStore.ClientID = string(inMsg.Get())
 		sessionStore.ClientAddr = session.Conn().RemoteAddr().String()
