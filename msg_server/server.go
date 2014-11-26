@@ -24,10 +24,10 @@ import (
 )
 
 type MsgServer struct {
-	cfg Config
-	sessions SessionMap
-	channels ChannelMap
-	server *link.Server
+	cfg         Config
+	sessions    SessionMap
+	channels    ChannelMap
+	server      *link.Server
 }
 
 func NewMsgServer() *MsgServer {

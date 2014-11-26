@@ -23,7 +23,7 @@ import (
 )
 
 type ProtoProc struct {
-	msgServer *MsgServer
+	msgServer    *MsgServer
 }
 
 func NewProtoProc(msgServer *MsgServer) *ProtoProc {

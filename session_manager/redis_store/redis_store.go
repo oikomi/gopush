@@ -13,9 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package redis_store
-
 
 import (
 	"github.com/garyburd/redigo/redis"
@@ -29,11 +27,11 @@ var (
 )
 
 type StoreSession struct {
-	ClientID string
-	ClientAddr string
-	MsgServerAddr string
-	ID string
-	MaxAge time.Duration
+	ClientID        string
+	ClientAddr      string
+	MsgServerAddr   string
+	ID              string
+	MaxAge          time.Duration
 }
 
 type RedisStoreOptions struct {
