@@ -17,7 +17,7 @@ package main
 
 import (
 	"log"
-	"fmt"
+	//"fmt"
 	"encoding/json"
 	"github.com/funny/link"
 	"github.com/oikomi/gopush/protocol"
@@ -40,11 +40,12 @@ func NewMsgServer() *MsgServer {
 	return ms
 }
 
-func (self *MsgServer)initChannels() {
-	channel := link.NewChannel(self.server.Protocol())
-	self.channels[SYSCTRL_CLIENT_STATUS] = channel
+func (self *MsgServer)createChannels() {
+	for _, c := range ChannleList {
+		channel := link.NewChannel(self.server.Protocol())
+		self.channels[c] = channel
+	}
 }
-
 
 func (self *MsgServer)parseProtocol(cmd []byte, session *link.Session) error {
 	var c protocol.Cmd
@@ -59,7 +60,7 @@ func (self *MsgServer)parseProtocol(cmd []byte, session *link.Session) error {
 
 	switch c.CmdName {
 		case protocol.SUBSCRIBE_CHANNEL_CMD:
-			fmt.Println("one")
+			pp.procSubscribeChannel(c, session)
 		case protocol.SEND_CLIENT_ID_CMD:
 			err = pp.procClientID(c, session)
 			if err != nil {

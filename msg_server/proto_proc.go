@@ -35,20 +35,35 @@ func NewProtoProc(msgServer *MsgServer) *ProtoProc {
 }
 
 func (self *ProtoProc)procClientID(cmd protocol.Cmd, session *link.Session) error {
+	log.Println("procClientID")
+	var err error
 	sessionStore := NewSessionStore()
 	sessionStore.ClientID = string(cmd.Args[0])
 	sessionStore.ClientAddr = session.Conn().RemoteAddr().String()
 	sessionStore.MsgServerAddr = self.msgServer.cfg.LocalIP
 	sessionStore.ID = strconv.FormatUint(session.Id(), 10)
 	
-	err := session.Send(link.JSON {
-		sessionStore,
-	})
-	if err != nil {
-		log.Fatal(err.Error())
-		return err
+	//err := session.Send(link.JSON {
+	//	sessionStore,
+	//})
+	
+	if self.msgServer.channels[SYSCTRL_CLIENT_STATUS] != nil {
+		self.msgServer.channels[SYSCTRL_CLIENT_STATUS].Broadcast(link.JSON {
+			sessionStore,
+		})
 	}
+
+	//if err != nil {
+	//	log.Fatal(err.Error())
+	//	return err
+	//}
 	self.msgServer.sessions[string(cmd.Args[0])] = session
 	
 	return err
+}
+
+func (self *ProtoProc)procSubscribeChannel(cmd protocol.Cmd, session *link.Session) {
+	log.Println("procSubscribeChannel")
+	channelName := string(cmd.Args[0])
+	self.msgServer.channels[channelName].Join(session, nil)
 }

@@ -36,3 +36,8 @@ func (self *Cmd)ParseCmd(msglist []string) {
 	self.CmdName = msglist[1]
 	self.Args = msglist[2:]
 }
+
+type ClientIDCmd struct {
+	CmdName string
+	ClientID string
+}

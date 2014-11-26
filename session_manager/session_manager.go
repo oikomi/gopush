@@ -70,7 +70,7 @@ func connectMsgServer(ms string) (*link.Session, error) {
 
 func handleMsgServerClient(msc *link.Session, redisStore *redis_store.RedisStore) {
 	msc.ReadLoop(func(msg link.InBuffer) {
-		//log.Println("client", msc.Conn().RemoteAddr().String(),"say:", string(msg.Get()))
+		log.Println("msg_server", msc.Conn().RemoteAddr().String(),"say:", string(msg.Get()))
 		
 		var ss redis_store.StoreSession
 		
@@ -85,12 +85,14 @@ func handleMsgServerClient(msc *link.Session, redisStore *redis_store.RedisStore
 		if err != nil {
 			log.Fatalln("error:", err)
 		}
+		log.Println("set sesion id success")
 	})
 
 	log.Println("client", msc.Conn().RemoteAddr().String(), "close")
 }
 
 func subscribeChannels(cfg Config, redisStore *redis_store.RedisStore) {
+	log.Println("subscribeChannels")
 	var msgServerClientList []*link.Session
 	for _, ms := range cfg.MsgServerList {
 		msgServerClient, err := connectMsgServer(ms)

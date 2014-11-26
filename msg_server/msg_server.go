@@ -70,7 +70,7 @@ func main() {
 	}
 	log.Println("server start:", ms.server.Listener().Addr().String())
 	
-	ms.initChannels()
+	ms.createChannels()
 
 	ms.server.AcceptLoop(func(session *link.Session) {
 		log.Println("client", session.Conn().RemoteAddr().String(), "in")
