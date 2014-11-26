@@ -27,7 +27,6 @@ var InputConfFile = flag.String("conf_file", "client.json", "input conf file nam
 
 func init() {
 	flag.Set("alsologtostderr", "true")
-	//flag.Set("v", "0")
 	flag.Set("log_dir", "false")
 }
 
@@ -38,7 +37,7 @@ func main() {
 		glog.Error(err.Error())
 		return
 	}
-	
+
 	p := link.PacketN(2, link.BigEndianBO, link.LittleEndianBF)
 
 	gatewayClient, err := link.Dial("tcp", cfg.GatewayServer, p)

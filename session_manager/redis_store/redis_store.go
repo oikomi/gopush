@@ -16,10 +16,10 @@
 package redis_store
 
 import (
-	"github.com/garyburd/redigo/redis"
 	"time"
 	"encoding/json"
 	"errors"
+	"github.com/garyburd/redigo/redis"
 )
 
 var (

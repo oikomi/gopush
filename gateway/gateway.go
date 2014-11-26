@@ -17,10 +17,10 @@ package main
 
 import (
 	"flag"
-	"log"
 	"fmt"
-	"github.com/funny/link"
 	"math/rand"
+	"github.com/golang/glog"
+	"github.com/funny/link"
 )
 
 /*
@@ -48,12 +48,16 @@ func version() {
 	fmt.Printf("gateway version %s Copyright (c) 2014 Harold Miao (miaohonghit@gmail.com)  \n", VERSION)
 }
 
+func init() {
+	flag.Set("alsologtostderr", "true")
+	flag.Set("log_dir", "false")
+}
+
 var InputConfFile = flag.String("conf_file", "gateway.json", "input conf file name")   
 
 func selectServer(serverList []string, serverNum int) string{
 	return serverList[rand.Intn(serverNum)]
 }
-
 
 func main() {
 	version()
@@ -61,7 +65,7 @@ func main() {
 	flag.Parse()
 	cfg, err := LoadConfig(*InputConfFile)
 	if err != nil {
-		log.Fatalln(err.Error())
+		glog.Error(err.Error())
 		return
 	}
 	
@@ -71,17 +75,17 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	log.Println("server start:", server.Listener().Addr().String())
+	glog.Info("server start:", server.Listener().Addr().String())
 
 	server.AcceptLoop(func(session *link.Session) {
-		log.Println("client", session.Conn().RemoteAddr().String(), "in")
+		glog.Info("client", session.Conn().RemoteAddr().String(), "in")
 		msgServer := selectServer(cfg.MsgServerList, cfg.MsgServerNum)
 		
 		err = session.Send(link.Binary(msgServer))
 		if err != nil {
-			log.Fatal(err.Error())
+			glog.Error(err.Error())
 		}
 		session.Close(nil)
-		log.Println("client", session.Conn().RemoteAddr().String(), "close")
+		glog.Info("client", session.Conn().RemoteAddr().String(), "close")
 	})
 }

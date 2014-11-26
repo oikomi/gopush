@@ -17,8 +17,8 @@ package main
 
 import (
 	"flag"
-	"github.com/golang/glog"
 	"fmt"
+	"github.com/golang/glog"
 	"github.com/funny/link"
 )
 
@@ -45,7 +45,6 @@ const VERSION string = "0.10"
 
 func init() {
 	flag.Set("alsologtostderr", "true")
-	flag.Set("v", "3")
 	flag.Set("log_dir", "false")
 }
 

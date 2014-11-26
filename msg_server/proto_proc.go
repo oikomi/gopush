@@ -25,7 +25,6 @@ import (
 
 func init() {
 	flag.Set("alsologtostderr", "true")
-	flag.Set("v", "3")
 	flag.Set("log_dir", "false")
 }
 
