@@ -16,11 +16,18 @@
 package main
 
 import (
-	"log"
+	"github.com/golang/glog"
 	"strconv"
+	"flag"
 	"github.com/funny/link"
 	"github.com/oikomi/gopush/protocol"
 )
+
+func init() {
+	flag.Set("alsologtostderr", "true")
+	flag.Set("v", "3")
+	flag.Set("log_dir", "false")
+}
 
 type ProtoProc struct {
 	msgServer    *MsgServer
@@ -35,7 +42,7 @@ func NewProtoProc(msgServer *MsgServer) *ProtoProc {
 }
 
 func (self *ProtoProc)procClientID(cmd protocol.Cmd, session *link.Session) error {
-	log.Println("procClientID")
+	glog.Info("procClientID")
 	var err error
 	sessionStore := NewSessionStore()
 	sessionStore.ClientID = string(cmd.Args[0])
@@ -43,27 +50,23 @@ func (self *ProtoProc)procClientID(cmd protocol.Cmd, session *link.Session) erro
 	sessionStore.MsgServerAddr = self.msgServer.cfg.LocalIP
 	sessionStore.ID = strconv.FormatUint(session.Id(), 10)
 	
-	//err := session.Send(link.JSON {
-	//	sessionStore,
-	//})
-	
 	if self.msgServer.channels[SYSCTRL_CLIENT_STATUS] != nil {
-		self.msgServer.channels[SYSCTRL_CLIENT_STATUS].Broadcast(link.JSON {
+		err = self.msgServer.channels[SYSCTRL_CLIENT_STATUS].Broadcast(link.JSON {
 			sessionStore,
 		})
 	}
 
-	//if err != nil {
-	//	log.Fatal(err.Error())
-	//	return err
-	//}
+	if err != nil {
+		glog.Error(err.Error())
+		return err
+	}
 	self.msgServer.sessions[string(cmd.Args[0])] = session
 	
 	return err
 }
 
 func (self *ProtoProc)procSubscribeChannel(cmd protocol.Cmd, session *link.Session) {
-	log.Println("procSubscribeChannel")
+	glog.Info("procSubscribeChannel")
 	channelName := string(cmd.Args[0])
 	self.msgServer.channels[channelName].Join(session, nil)
 }

@@ -17,7 +17,7 @@ package main
 
 import (
 	"flag"
-	"log"
+	"github.com/golang/glog"
 	"time"
 	"fmt"
 	"encoding/json"
@@ -45,6 +45,12 @@ func BuildTime() string {
 	return buildTime
 }
 
+func init() {
+	flag.Set("alsologtostderr", "true")
+	flag.Set("v", "3")
+	flag.Set("log_dir", "false")
+}
+
 const VERSION string = "0.10"
 
 func version() {
@@ -61,7 +67,7 @@ func connectMsgServer(ms string) (*link.Session, error) {
 	p := link.PacketN(2, link.BigEndianBO, link.LittleEndianBF)
 	client, err := link.Dial("tcp", ms, p)
 	if err != nil {
-		log.Fatal(err.Error())
+		glog.Error(err.Error())
 		panic(err)
 	}
 
@@ -70,34 +76,34 @@ func connectMsgServer(ms string) (*link.Session, error) {
 
 func handleMsgServerClient(msc *link.Session, redisStore *redis_store.RedisStore) {
 	msc.ReadLoop(func(msg link.InBuffer) {
-		log.Println("msg_server", msc.Conn().RemoteAddr().String(),"say:", string(msg.Get()))
+		glog.Info("msg_server", msc.Conn().RemoteAddr().String(),"say:", string(msg.Get()))
 		
 		var ss redis_store.StoreSession
 		
-		log.Println(string(msg.Get()))
+		glog.Info(string(msg.Get()))
 		
 		err := json.Unmarshal(msg.Get(), &ss)
 		if err != nil {
-			log.Fatalln("error:", err)
+			glog.Error("error:", err)
 		}
 
 		err = redisStore.Set(&ss)
 		if err != nil {
-			log.Fatalln("error:", err)
+			glog.Error("error:", err)
 		}
-		log.Println("set sesion id success")
+		glog.Info("set sesion id success")
 	})
 
-	log.Println("client", msc.Conn().RemoteAddr().String(), "close")
+	glog.Info("client", msc.Conn().RemoteAddr().String(), "close")
 }
 
 func subscribeChannels(cfg Config, redisStore *redis_store.RedisStore) {
-	log.Println("subscribeChannels")
+	glog.Info("subscribeChannels")
 	var msgServerClientList []*link.Session
 	for _, ms := range cfg.MsgServerList {
 		msgServerClient, err := connectMsgServer(ms)
 		if err != nil {
-			log.Fatal(err.Error())
+			glog.Error(err.Error())
 			return
 		}
 		cmd := protocol.NewCmd()
@@ -123,7 +129,7 @@ func main() {
 	flag.Parse()
 	cfg, err := LoadConfig(*InputConfFile)
 	if err != nil {
-		log.Fatalln(err.Error())
+		glog.Error(err.Error())
 		return
 	}
 	
@@ -133,7 +139,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	log.Println("server start:", server.Listener().Addr().String())
+	glog.Info("server start:", server.Listener().Addr().String())
 	
 	redisOptions := redis_store.RedisStoreOptions {
 			Network :   "tcp",

@@ -16,12 +16,19 @@
 package main
 
 import (
-	"log"
+	"github.com/golang/glog"
 	//"fmt"
+	"flag"
 	"encoding/json"
 	"github.com/funny/link"
 	"github.com/oikomi/gopush/protocol"
 )
+
+func init() {
+	flag.Set("alsologtostderr", "true")
+	flag.Set("v", "3")
+	flag.Set("log_dir", "false")
+}
 
 type MsgServer struct {
 	cfg         Config
@@ -52,7 +59,7 @@ func (self *MsgServer)parseProtocol(cmd []byte, session *link.Session) error {
 	
 	err := json.Unmarshal(cmd, &c)
 	if err != nil {
-		log.Fatalln("error:", err)
+		glog.Error("error:", err)
 		return err
 	}
 	
@@ -64,7 +71,7 @@ func (self *MsgServer)parseProtocol(cmd []byte, session *link.Session) error {
 		case protocol.SEND_CLIENT_ID_CMD:
 			err = pp.procClientID(c, session)
 			if err != nil {
-				log.Fatalln("error:", err)
+				glog.Error("error:", err)
 				return err
 			}
 		}

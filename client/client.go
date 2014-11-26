@@ -18,19 +18,24 @@ package main
 import (
 	"fmt"
 	"flag"
-	"log"
 	"github.com/funny/link"
+	"github.com/golang/glog"
 	"github.com/oikomi/gopush/protocol"
 )
 
 var InputConfFile = flag.String("conf_file", "client.json", "input conf file name")   
 
+func init() {
+	flag.Set("alsologtostderr", "true")
+	//flag.Set("v", "0")
+	flag.Set("log_dir", "false")
+}
 
 func main() {
 	flag.Parse()
 	cfg, err := LoadConfig(*InputConfFile)
 	if err != nil {
-		log.Fatalln(err.Error())
+		glog.Error(err.Error())
 		return
 	}
 	
@@ -43,14 +48,14 @@ func main() {
 	
 	var input string
 	if _, err := fmt.Scanf("%s\n", &input); err != nil {
-		log.Fatal(err.Error())
+		glog.Error(err.Error())
 	}
 	
 	inMsg, err := gatewayClient.Read()
 	if err != nil {
-		log.Fatal(err.Error())
+		glog.Error(err.Error())
 	}
-	log.Println(string(inMsg.Get()))
+	glog.Info(string(inMsg.Get()))
 
 	gatewayClient.Close(nil)
 
@@ -68,13 +73,10 @@ func main() {
 		cmd,
 	})
 	if err != nil {
-		log.Fatal(err.Error())
+		glog.Error(err.Error())
 	}
 	
 	defer msgServerClient.Close(nil)
 	
-	msgServerClient.ReadLoop(func(msg link.InBuffer) {
-		log.Println("client", msgServerClient.Conn().RemoteAddr().String(),"say:", string(msg.Get()))
-		
-	})
+	glog.Flush()
 }

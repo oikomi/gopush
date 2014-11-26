@@ -17,7 +17,7 @@ package main
 
 import (
 	"flag"
-	"log"
+	"github.com/golang/glog"
 	"fmt"
 	"github.com/funny/link"
 )
@@ -43,6 +43,12 @@ func BuildTime() string {
 
 const VERSION string = "0.10"
 
+func init() {
+	flag.Set("alsologtostderr", "true")
+	flag.Set("v", "3")
+	flag.Set("log_dir", "false")
+}
+
 func version() {
 	fmt.Printf("msg_server version %s Copyright (c) 2014 Harold Miao (miaohonghit@gmail.com)  \n", VERSION)
 }
@@ -55,7 +61,7 @@ func main() {
 	flag.Parse()
 	cfg, err := LoadConfig(*InputConfFile)
 	if err != nil {
-		log.Fatalln(err.Error())
+		glog.Error(err.Error())
 		return
 	}
 	
@@ -68,22 +74,22 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	log.Println("server start:", ms.server.Listener().Addr().String())
+	glog.Info("server start:", ms.server.Listener().Addr().String())
 	
 	ms.createChannels()
 
 	ms.server.AcceptLoop(func(session *link.Session) {
-		log.Println("client", session.Conn().RemoteAddr().String(), "in")
+		glog.Info("client", session.Conn().RemoteAddr().String(), "in")
 		
 		inMsg, err := session.Read()
 		if err != nil {
-			log.Fatal(err.Error())
+			glog.Error(err.Error())
 		}
-		log.Println(string(inMsg.Get()))
+		glog.Info(string(inMsg.Get()))
 		
 		err = ms.parseProtocol(inMsg.Get(), session)
 		if err != nil {
-			log.Fatal(err.Error())
+			glog.Error(err.Error())
 		}
 	})
 }
