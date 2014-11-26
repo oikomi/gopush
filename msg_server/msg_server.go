@@ -19,10 +19,7 @@ import (
 	"flag"
 	"log"
 	"fmt"
-	"encoding/json"
-	"strconv"
 	"github.com/funny/link"
-	"github.com/oikomi/gopush/protocol"
 )
 
 /*
@@ -50,63 +47,7 @@ func version() {
 	fmt.Printf("msg_server version %s Copyright (c) 2014 Harold Miao (miaohonghit@gmail.com)  \n", VERSION)
 }
 
-
 var InputConfFile = flag.String("conf_file", "msg_server.json", "input conf file name")   
-
-type MsgServer struct {
-	cfg Config
-	sessions SessionMap
-	channels ChannelMap
-	server *link.Server
-}
-
-func NewMsgServer() *MsgServer {
-	ms := &MsgServer {
-		sessions : make(SessionMap),
-		channels : make(ChannelMap),
-		server : new(link.Server),
-	}
-	
-	return ms
-}
-
-func (self *MsgServer)initChannels() {
-	channel := link.NewChannel(self.server.Protocol())
-	self.channels[SYSCTRL_CLIENT_STATUS] = channel
-}
-
-func (self *MsgServer)procClientID(cmd protocol.Cmd, session *link.Session) {
-	
-	sessionStore := NewSessionStore()
-	sessionStore.ClientID = string(cmd.Args[0])
-	sessionStore.ClientAddr = session.Conn().RemoteAddr().String()
-	sessionStore.MsgServerAddr = self.cfg.LocalIP
-	sessionStore.ID = strconv.FormatUint(session.Id(), 10)
-	
-	err := session.Send(link.JSON {
-		sessionStore,
-	})
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	self.sessions[string(cmd.Args[0])] = session
-}
-
-func (self *MsgServer)parseProtocol(cmd []byte, session *link.Session) {
-	var c protocol.Cmd
-	
-	err := json.Unmarshal(cmd, &c)
-	if err != nil {
-		log.Fatalln("error:", err)
-	}
-	
-	switch c.CmdName {
-		case protocol.SUBSCRIBE_CHANNEL_CMD:
-			fmt.Println("one")
-		case protocol.SEND_CLIENT_ID_CMD:
-			self.procClientID(c, session)
-		}
-}
 
 func main() {
 	version()
@@ -140,6 +81,9 @@ func main() {
 		}
 		log.Println(string(inMsg.Get()))
 		
-		ms.parseProtocol(inMsg.Get(), session)
+		err = ms.parseProtocol(inMsg.Get(), session)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
 	})
 }
