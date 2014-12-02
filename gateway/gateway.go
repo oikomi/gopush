@@ -18,7 +18,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"math/rand"
+	"github.com/oikomi/gopush/common"
 	"github.com/golang/glog"
 	"github.com/funny/link"
 )
@@ -55,10 +55,6 @@ func init() {
 
 var InputConfFile = flag.String("conf_file", "gateway.json", "input conf file name")   
 
-func selectServer(serverList []string, serverNum int) string{
-	return serverList[rand.Intn(serverNum)]
-}
-
 func main() {
 	version()
 	fmt.Printf("built on %s\n", BuildTime())
@@ -79,7 +75,7 @@ func main() {
 
 	server.AcceptLoop(func(session *link.Session) {
 		glog.Info("client", session.Conn().RemoteAddr().String(), "in")
-		msgServer := selectServer(cfg.MsgServerList, cfg.MsgServerNum)
+		msgServer := common.SelectServer(cfg.MsgServerList, cfg.MsgServerNum)
 		
 		err = session.Send(link.Binary(msgServer))
 		if err != nil {
