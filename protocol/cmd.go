@@ -18,6 +18,7 @@ package protocol
 const (
 	SEND_CLIENT_ID_CMD     = "SEND_CLIENT_ID"
 	SUBSCRIBE_CHANNEL_CMD  = "SUBSCRIBE_CHANNEL"
+	SEND_MESSAGE_P2P_CMD   = "SEND_MESSAGE_P2P"
 )
 
 type Cmd struct {
@@ -40,4 +41,10 @@ func (self *Cmd)ParseCmd(msglist []string) {
 type ClientIDCmd struct {
 	CmdName string
 	ClientID string
+}
+
+type SendMessageP2PCmd struct {
+	CmdName string
+	ID string
+	Msg string
 }

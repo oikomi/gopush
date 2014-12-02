@@ -64,6 +64,12 @@ func (self *ProtoProc)procClientID(cmd protocol.Cmd, session *link.Session) erro
 	return err
 }
 
+func (self *ProtoProc)procSendMessageP2P(cmd protocol.Cmd, session *link.Session) {
+	glog.Info("procSendMessageP2P")
+	
+	
+}
+
 func (self *ProtoProc)procSubscribeChannel(cmd protocol.Cmd, session *link.Session) {
 	glog.Info("procSubscribeChannel")
 	channelName := string(cmd.Args[0])

@@ -54,6 +54,19 @@ func version() {
 
 var InputConfFile = flag.String("conf_file", "msg_server.json", "input conf file name")   
 
+func handle(ms *MsgServer, session *link.Session) {
+	//inMsg, err := session.Read()
+	session.ReadLoop(func(msg link.InBuffer) {
+		glog.Info(string(msg.Get()))
+		
+		err := ms.parseProtocol(msg.Get(), session)
+		if err != nil {
+			glog.Error(err.Error())
+		}
+	
+	})
+}
+
 func main() {
 	version()
 	fmt.Printf("built on %s\n", BuildTime())
@@ -80,15 +93,6 @@ func main() {
 	ms.server.AcceptLoop(func(session *link.Session) {
 		glog.Info("client", session.Conn().RemoteAddr().String(), "in")
 		
-		inMsg, err := session.Read()
-		if err != nil {
-			glog.Error(err.Error())
-		}
-		glog.Info(string(inMsg.Get()))
-		
-		err = ms.parseProtocol(inMsg.Get(), session)
-		if err != nil {
-			glog.Error(err.Error())
-		}
+		go handle(ms, session)
 	})
 }

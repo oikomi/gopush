@@ -45,6 +45,7 @@ func main() {
 		panic(err)
 	}
 	
+	fmt.Println("input id :")
 	var input string
 	if _, err := fmt.Scanf("%s\n", &input); err != nil {
 		glog.Error(err.Error())
@@ -66,6 +67,31 @@ func main() {
 	cmd := protocol.NewCmd()
 	
 	cmd.CmdName = protocol.SEND_CLIENT_ID_CMD
+	cmd.Args = append(cmd.Args, input)
+	
+	err = msgServerClient.Send(link.JSON {
+		cmd,
+	})
+	if err != nil {
+		glog.Error(err.Error())
+	}
+	
+	cmd = protocol.NewCmd()
+	
+	cmd.CmdName = protocol.SEND_MESSAGE_P2P_CMD
+	
+	fmt.Println("input 2id :")
+	if _, err = fmt.Scanf("%s\n", &input); err != nil {
+		glog.Error(err.Error())
+	}
+	
+	cmd.Args = append(cmd.Args, input)
+	
+	fmt.Println("input msg :")
+	if _, err = fmt.Scanf("%s\n", &input); err != nil {
+		glog.Error(err.Error())
+	}
+	
 	cmd.Args = append(cmd.Args, input)
 	
 	err = msgServerClient.Send(link.JSON {

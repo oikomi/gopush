@@ -63,6 +63,8 @@ func (self *MsgServer)parseProtocol(cmd []byte, session *link.Session) error {
 	}
 	
 	pp := NewProtoProc(self)
+	
+	glog.Info(c.CmdName)
 
 	switch c.CmdName {
 		case protocol.SUBSCRIBE_CHANNEL_CMD:
@@ -73,6 +75,8 @@ func (self *MsgServer)parseProtocol(cmd []byte, session *link.Session) error {
 				glog.Error("error:", err)
 				return err
 			}
+		case protocol.SEND_MESSAGE_P2P_CMD:
+			pp.procSendMessageP2P(c, session)
 		}
 
 	return err

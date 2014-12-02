@@ -70,7 +70,7 @@ func main() {
 	
 	server, err := link.Listen(cfg.TransportProtocols, cfg.Listen, p)
 	if err != nil {
-		panic(err)
+		glog.Error(err.Error())
 	}
 	glog.Info("server start:", server.Listener().Addr().String())
 	

@@ -63,27 +63,29 @@ func (self *SessionManager)handleMsgServerClient(msc *link.Session, redisStore *
 		}
 		glog.Info("set sesion id success")
 	})
-
-	glog.Info("client", msc.Conn().RemoteAddr().String(), "close")
 }
 
-func (self *SessionManager)subscribeChannels(redisStore *redis_store.RedisStore) {
+func (self *SessionManager)subscribeChannels(redisStore *redis_store.RedisStore) error {
 	glog.Info("subscribeChannels")
 	var msgServerClientList []*link.Session
 	for _, ms := range self.cfg.MsgServerList {
 		msgServerClient, err := self.connectMsgServer(ms)
 		if err != nil {
 			glog.Error(err.Error())
-			return
+			return err
 		}
 		cmd := protocol.NewCmd()
 		
 		cmd.CmdName = protocol.SUBSCRIBE_CHANNEL_CMD
 		cmd.Args = append(cmd.Args, SYSCTRL_CLIENT_STATUS)
 		
-		msgServerClient.Send(link.JSON {
+		err = msgServerClient.Send(link.JSON {
 			cmd,
 		})
+		if err != nil {
+			glog.Error(err.Error())
+			return err
+		}
 		
 		msgServerClientList = append(msgServerClientList, msgServerClient)
 	}
@@ -91,4 +93,5 @@ func (self *SessionManager)subscribeChannels(redisStore *redis_store.RedisStore)
 	for _, msc := range msgServerClientList {
 		go self.handleMsgServerClient(msc, redisStore)
 	}
+	return nil
 }
