@@ -18,12 +18,7 @@ package main
 import (
 	"net"
 	"fmt"
-	"math/rand"
 )
-
-func selectServer(serverList []string, serverNum int) string {
-	return serverList[rand.Intn(serverNum)]
-}
 
 func getHostIP() {
 	addrs, err := net.InterfaceAddrs()

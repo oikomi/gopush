@@ -69,19 +69,21 @@ func main() {
 	
 	server, err := link.Listen(cfg.TransportProtocols, cfg.Listen, protocol)
 	if err != nil {
-		panic(err)
+		glog.Error(err.Error())
+		return
 	}
-	glog.Info("server start:", server.Listener().Addr().String())
+	glog.Info("server start: ", server.Listener().Addr().String())
 
 	server.AcceptLoop(func(session *link.Session) {
-		glog.Info("client", session.Conn().RemoteAddr().String(), "in")
+		glog.Info("client ", session.Conn().RemoteAddr().String(), " | in")
 		msgServer := common.SelectServer(cfg.MsgServerList, cfg.MsgServerNum)
 		
 		err = session.Send(link.Binary(msgServer))
 		if err != nil {
 			glog.Error(err.Error())
+			return
 		}
 		session.Close(nil)
-		glog.Info("client", session.Conn().RemoteAddr().String(), "close")
+		glog.Info("client ", session.Conn().RemoteAddr().String(), " | close")
 	})
 }

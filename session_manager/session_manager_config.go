@@ -18,7 +18,6 @@ package main
 import (
 	"os"
 	"encoding/json"
-	//"flag"
 	"time"
 	"log"
 )
