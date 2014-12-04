@@ -18,6 +18,7 @@ package common
 import (
 	"math/rand"
 	"time"
+	"github.com/golang/glog"
 	"github.com/oikomi/gopush/storage"
 )
 
@@ -41,7 +42,17 @@ func SelectServer(serverList []string, serverNum int) string {
 	return serverList[rand.Intn(serverNum)]
 }
 
-func GetSessionFromCID(redisStore  *storage.RedisStore) {
+func GetSessionFromCID(redisStore  *storage.RedisStore, ID string) (*storage.StoreSession, error) {
+	session ,err := redisStore.Get(ID)
 	
+	if err != nil {
+		glog.Error("error:", err)
+		return nil, err
+	}
+	if session != nil {
+		glog.Info(session)
+	}
+	
+	return session, nil
 
 }

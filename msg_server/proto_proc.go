@@ -21,6 +21,7 @@ import (
 	"flag"
 	"github.com/funny/link"
 	"github.com/oikomi/gopush/protocol"
+	"github.com/oikomi/gopush/common"
 )
 
 func init() {
@@ -67,8 +68,8 @@ func (self *ProtoProc)procClientID(cmd protocol.Cmd, session *link.Session) erro
 func (self *ProtoProc)procSendMessageP2P(cmd protocol.Cmd, session *link.Session) {
 	glog.Info("procSendMessageP2P")
 	send2ID := string(cmd.Args[0])
-	send2Msg := string(cmd.Args[1])
-	
+	//send2Msg := string(cmd.Args[1])
+	common.GetSessionFromCID(self.msgServer.redisStore, send2ID)
 }
 
 func (self *ProtoProc)procSubscribeChannel(cmd protocol.Cmd, session *link.Session) {

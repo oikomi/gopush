@@ -16,11 +16,11 @@
 package main
 
 import (
-	"github.com/golang/glog"
 	//"fmt"
 	"time"
 	"flag"
 	"encoding/json"
+	"github.com/golang/glog"
 	"github.com/funny/link"
 	"github.com/oikomi/gopush/protocol"
 	"github.com/oikomi/gopush/storage"
