@@ -22,7 +22,8 @@ import (
 	"log"
 )
 
-type Config struct {
+type SessionManagerConfig struct {
+	configfile string
 	TransportProtocols string
 	Listen string
 	LogFile    string
@@ -36,23 +37,29 @@ type Config struct {
 	} 
 }
 
-func LoadConfig(configfile string) (cfg Config, err error) {
-	file, err := os.Open(configfile)
+func NewSessionManagerConfig(configfile string) *SessionManagerConfig {
+	return &SessionManagerConfig{
+		configfile : configfile,
+	}
+}
+
+func (self *SessionManagerConfig)LoadConfig() error {
+	file, err := os.Open(self.configfile)
 	if err != nil {
 		log.Fatalln("Open configfile failed")
-		return
+		return err
 	}
 	defer file.Close()
 
 	dec := json.NewDecoder(file)
-	err = dec.Decode(&cfg)
+	err = dec.Decode(&self)
 	if err != nil {
-		return
+		return err
 	}
-	return
+	return nil
 }
 
-func DumpConfig(cfg *Config) {
+func (self *SessionManagerConfig)DumpConfig() {
 	//fmt.Printf("Mode: %s\nListen: %s\nServer: %s\nLogfile: %s\n", 
 	//cfg.Mode, cfg.Listen, cfg.Server, cfg.Logfile)
 }

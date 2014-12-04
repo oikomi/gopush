@@ -66,7 +66,8 @@ func (self *ProtoProc)procClientID(cmd protocol.Cmd, session *link.Session) erro
 
 func (self *ProtoProc)procSendMessageP2P(cmd protocol.Cmd, session *link.Session) {
 	glog.Info("procSendMessageP2P")
-	
+	//send2ID := string(cmd.Args[0])
+	//send2Msg := string(cmd.Args[1])
 	
 }
 

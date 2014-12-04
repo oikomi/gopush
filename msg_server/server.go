@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"github.com/funny/link"
 	"github.com/oikomi/gopush/protocol"
+	"github.com/oikomi/gopush/common"
 )
 
 func init() {
@@ -30,10 +31,11 @@ func init() {
 }
 
 type MsgServer struct {
-	cfg         Config
+	cfg         *MsgServerConfig
 	sessions    SessionMap
 	channels    ChannelMap
 	server      *link.Server
+	redisStore  *common.RedisStore
 }
 
 func NewMsgServer() *MsgServer {

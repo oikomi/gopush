@@ -21,7 +21,7 @@ import (
 	"time"
 	"fmt"
 	"github.com/funny/link"
-	"github.com/oikomi/gopush/session_manager/redis_store"
+	"github.com/oikomi/gopush/common"
 )
 
 /*
@@ -60,7 +60,8 @@ func main() {
 	version()
 	fmt.Printf("built on %s\n", BuildTime())
 	flag.Parse()
-	cfg, err := LoadConfig(*InputConfFile)
+	cfg := NewSessionManagerConfig(*InputConfFile)
+	err := cfg.LoadConfig()
 	if err != nil {
 		glog.Error(err.Error())
 		return
@@ -74,7 +75,7 @@ func main() {
 	}
 	glog.Info("server start:", server.Listener().Addr().String())
 	
-	redisOptions := redis_store.RedisStoreOptions {
+	redisOptions := common.RedisStoreOptions {
 			Network :   "tcp",
 			Address :   cfg.Redis.Port,
 			ConnectTimeout : time.Duration(cfg.Redis.ConnectTimeout)*time.Millisecond,
@@ -86,7 +87,7 @@ func main() {
 	
 	sm := NewSessionManager(cfg)
 
-	redisStore := redis_store.NewRedisStore(&redisOptions)
+	redisStore := common.NewRedisStore(&redisOptions)
 
 	go sm.subscribeChannels(redisStore)
 	

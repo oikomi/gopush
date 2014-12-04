@@ -54,7 +54,7 @@ func version() {
 
 var InputConfFile = flag.String("conf_file", "msg_server.json", "input conf file name")   
 
-func handle(ms *MsgServer, session *link.Session) {
+func handleSession(ms *MsgServer, session *link.Session) {
 	//inMsg, err := session.Read()
 	session.ReadLoop(func(msg link.InBuffer) {
 		glog.Info(string(msg.Get()))
@@ -71,7 +71,8 @@ func main() {
 	version()
 	fmt.Printf("built on %s\n", BuildTime())
 	flag.Parse()
-	cfg, err := LoadConfig(*InputConfFile)
+	cfg := NewMsgServerConfig(*InputConfFile)
+	err := cfg.LoadConfig()
 	if err != nil {
 		glog.Error(err.Error())
 		return
@@ -93,6 +94,6 @@ func main() {
 	ms.server.AcceptLoop(func(session *link.Session) {
 		glog.Info("client", session.Conn().RemoteAddr().String(), "in")
 		
-		go handle(ms, session)
+		go handleSession(ms, session)
 	})
 }

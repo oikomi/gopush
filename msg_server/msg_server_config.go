@@ -23,7 +23,8 @@ import (
 	"log"
 )
 
-type Config struct {
+type MsgServerConfig struct {
+	configfile string
 	LocalIP string
 	TransportProtocols string
 	Listen string
@@ -38,23 +39,29 @@ type Config struct {
 	} 
 }
 
-func LoadConfig(configfile string) (cfg Config, err error) {
-	file, err := os.Open(configfile)
+func NewMsgServerConfig(configfile string) *MsgServerConfig {
+	return &MsgServerConfig{
+		configfile : configfile,
+	}
+}
+
+func (self *MsgServerConfig)LoadConfig() error {
+	file, err := os.Open(self.configfile)
 	if err != nil {
 		log.Fatalln("Open configfile failed")
-		return
+		return err
 	}
 	defer file.Close()
 
 	dec := json.NewDecoder(file)
-	err = dec.Decode(&cfg)
+	err = dec.Decode(&self)
 	if err != nil {
-		return
+		return err
 	}
-	return
+	return nil
 }
 
-func DumpConfig(cfg *Config) {
+func (self *MsgServerConfig)DumpConfig() {
 	//fmt.Printf("Mode: %s\nListen: %s\nServer: %s\nLogfile: %s\n", 
 	//cfg.Mode, cfg.Listen, cfg.Server, cfg.Logfile)
 }

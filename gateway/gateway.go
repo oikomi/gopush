@@ -59,7 +59,8 @@ func main() {
 	version()
 	fmt.Printf("built on %s\n", BuildTime())
 	flag.Parse()
-	cfg, err := LoadConfig(*InputConfFile)
+	cfg := NewGatewayConfig(*InputConfFile)
+	err := cfg.LoadConfig()
 	if err != nil {
 		glog.Error(err.Error())
 		return

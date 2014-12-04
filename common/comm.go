@@ -17,8 +17,15 @@ package common
 
 import (
 	"math/rand"
+	//"github.com/oikomi/gopush/session_manager/redis_store"
 )
 
 func SelectServer(serverList []string, serverNum int) string {
 	return serverList[rand.Intn(serverNum)]
+}
+
+
+func GetSessionFromCID() {
+	
+
 }

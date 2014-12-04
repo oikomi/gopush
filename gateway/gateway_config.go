@@ -21,7 +21,8 @@ import (
 	"log"
 )
 
-type Config struct {
+type GatewayConfig struct {
+	configfile string
 	TransportProtocols string
 	Listen string
 	LogFile    string
@@ -29,23 +30,29 @@ type Config struct {
 	MsgServerNum int
 }
 
-func LoadConfig(configfile string) (cfg Config, err error) {
-	file, err := os.Open(configfile)
+func NewGatewayConfig(configfile string) *GatewayConfig {
+	return &GatewayConfig{
+		configfile : configfile,
+	}
+}
+
+func (self *GatewayConfig)LoadConfig() error {
+	file, err := os.Open(self.configfile)
 	if err != nil {
 		log.Fatalln("Open configfile failed")
-		return
+		return err
 	}
 	defer file.Close()
 
 	dec := json.NewDecoder(file)
-	err = dec.Decode(&cfg)
+	err = dec.Decode(&self)
 	if err != nil {
-		return
+		return err
 	}
-	return
+	return nil
 }
 
-func DumpConfig(cfg *Config) {
+func (self *GatewayConfig)DumpConfig() {
 	//fmt.Printf("Mode: %s\nListen: %s\nServer: %s\nLogfile: %s\n", 
 	//cfg.Mode, cfg.Listen, cfg.Server, cfg.Logfile)
 }
