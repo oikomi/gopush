@@ -23,7 +23,7 @@ import (
 	"encoding/json"
 	"github.com/funny/link"
 	"github.com/oikomi/gopush/protocol"
-	"github.com/oikomi/gopush/common"
+	"github.com/oikomi/gopush/storage"
 )
 
 func init() {
@@ -36,7 +36,7 @@ type MsgServer struct {
 	sessions    SessionMap
 	channels    ChannelMap
 	server      *link.Server
-	redisStore  *common.RedisStore
+	redisStore  *storage.RedisStore
 }
 
 func NewMsgServer(cfg *MsgServerConfig) *MsgServer {
@@ -45,7 +45,7 @@ func NewMsgServer(cfg *MsgServerConfig) *MsgServer {
 		sessions   : make(SessionMap),
 		channels   : make(ChannelMap),
 		server     : new(link.Server),
-		redisStore : common.NewRedisStore(&common.RedisStoreOptions {
+		redisStore : storage.NewRedisStore(&storage.RedisStoreOptions {
 			Network :   "tcp",
 			Address :   cfg.Redis.Port,
 			ConnectTimeout : time.Duration(cfg.Redis.ConnectTimeout)*time.Millisecond,

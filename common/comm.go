@@ -18,7 +18,7 @@ package common
 import (
 	"math/rand"
 	"time"
-	//"github.com/oikomi/gopush/session_manager/redis_store"
+	"github.com/oikomi/gopush/storage"
 )
 
 const KeyPrefix string = "push"
@@ -27,7 +27,7 @@ var DefaultRedisConnectTimeout uint32 = 2000
 var DefaultRedisReadTimeout    uint32 = 1000
 var DefaultRedisWriteTimeout   uint32 = 1000
 
-var DefaultRedisOptions RedisStoreOptions = RedisStoreOptions {
+var DefaultRedisOptions storage.RedisStoreOptions = storage.RedisStoreOptions {
 	Network        :   "tcp",
 	Address        :   ":6379",
 	ConnectTimeout : time.Duration(DefaultRedisConnectTimeout)*time.Millisecond,
@@ -41,7 +41,7 @@ func SelectServer(serverList []string, serverNum int) string {
 	return serverList[rand.Intn(serverNum)]
 }
 
-func GetSessionFromCID() {
+func GetSessionFromCID(redisStore  *storage.RedisStore) {
 	
 
 }

@@ -21,7 +21,7 @@ import (
 	"time"
 	"fmt"
 	"github.com/funny/link"
-	"github.com/oikomi/gopush/common"
+	"github.com/oikomi/gopush/storage"
 )
 
 /*
@@ -75,7 +75,7 @@ func main() {
 	}
 	glog.Info("server start:", server.Listener().Addr().String())
 	
-	redisOptions := common.RedisStoreOptions {
+	redisOptions := storage.RedisStoreOptions {
 			Network :   "tcp",
 			Address :   cfg.Redis.Port,
 			ConnectTimeout : time.Duration(cfg.Redis.ConnectTimeout)*time.Millisecond,
@@ -87,7 +87,7 @@ func main() {
 	
 	sm := NewSessionManager(cfg)
 
-	redisStore := common.NewRedisStore(&redisOptions)
+	redisStore := storage.NewRedisStore(&redisOptions)
 
 	go sm.subscribeChannels(redisStore)
 	

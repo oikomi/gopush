@@ -19,7 +19,7 @@ import (
 	"github.com/golang/glog"
 	"encoding/json"
 	"github.com/funny/link"
-	"github.com/oikomi/gopush/common"
+	"github.com/oikomi/gopush/storage"
 	"github.com/oikomi/gopush/protocol"
 )
 
@@ -44,11 +44,11 @@ func (self *SessionManager)connectMsgServer(ms string) (*link.Session, error) {
 	return client, err
 }
 
-func (self *SessionManager)handleMsgServerClient(msc *link.Session, redisStore *common.RedisStore) {
+func (self *SessionManager)handleMsgServerClient(msc *link.Session, redisStore *storage.RedisStore) {
 	msc.ReadLoop(func(msg link.InBuffer) {
 		glog.Info("msg_server", msc.Conn().RemoteAddr().String(),"say:", string(msg.Get()))
 		
-		var ss common.StoreSession
+		var ss storage.StoreSession
 		
 		glog.Info(string(msg.Get()))
 		
@@ -65,7 +65,7 @@ func (self *SessionManager)handleMsgServerClient(msc *link.Session, redisStore *
 	})
 }
 
-func (self *SessionManager)subscribeChannels(redisStore *common.RedisStore) error {
+func (self *SessionManager)subscribeChannels(redisStore *storage.RedisStore) error {
 	glog.Info("subscribeChannels")
 	var msgServerClientList []*link.Session
 	for _, ms := range self.cfg.MsgServerList {
