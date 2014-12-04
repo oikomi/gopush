@@ -55,7 +55,6 @@ func version() {
 var InputConfFile = flag.String("conf_file", "msg_server.json", "input conf file name")   
 
 func handleSession(ms *MsgServer, session *link.Session) {
-	//inMsg, err := session.Read()
 	session.ReadLoop(func(msg link.InBuffer) {
 		glog.Info(string(msg.Get()))
 		
@@ -63,7 +62,6 @@ func handleSession(ms *MsgServer, session *link.Session) {
 		if err != nil {
 			glog.Error(err.Error())
 		}
-	
 	})
 }
 
@@ -78,8 +76,7 @@ func main() {
 		return
 	}
 	
-	ms := NewMsgServer()
-	ms.cfg = cfg
+	ms := NewMsgServer(cfg)
 	
 	p := link.PacketN(2, link.BigEndianBO, link.LittleEndianBF)
 	

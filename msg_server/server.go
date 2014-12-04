@@ -18,6 +18,7 @@ package main
 import (
 	"github.com/golang/glog"
 	//"fmt"
+	"time"
 	"flag"
 	"encoding/json"
 	"github.com/funny/link"
@@ -38,14 +39,22 @@ type MsgServer struct {
 	redisStore  *common.RedisStore
 }
 
-func NewMsgServer() *MsgServer {
-	ms := &MsgServer {
-		sessions : make(SessionMap),
-		channels : make(ChannelMap),
-		server : new(link.Server),
+func NewMsgServer(cfg *MsgServerConfig) *MsgServer {
+	return &MsgServer {
+		cfg        : cfg,
+		sessions   : make(SessionMap),
+		channels   : make(ChannelMap),
+		server     : new(link.Server),
+		redisStore : common.NewRedisStore(&common.RedisStoreOptions {
+			Network :   "tcp",
+			Address :   cfg.Redis.Port,
+			ConnectTimeout : time.Duration(cfg.Redis.ConnectTimeout)*time.Millisecond,
+			ReadTimeout : time.Duration(cfg.Redis.ReadTimeout)*time.Millisecond,
+			WriteTimeout : time.Duration(cfg.Redis.WriteTimeout)*time.Millisecond,
+			Database :  1,
+			KeyPrefix : "push",
+		}),
 	}
-	
-	return ms
 }
 
 func (self *MsgServer)createChannels() {

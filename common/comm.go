@@ -17,13 +17,29 @@ package common
 
 import (
 	"math/rand"
+	"time"
 	//"github.com/oikomi/gopush/session_manager/redis_store"
 )
+
+const KeyPrefix string = "push"
+
+var DefaultRedisConnectTimeout uint32 = 2000
+var DefaultRedisReadTimeout    uint32 = 1000
+var DefaultRedisWriteTimeout   uint32 = 1000
+
+var DefaultRedisOptions RedisStoreOptions = RedisStoreOptions {
+	Network        :   "tcp",
+	Address        :   ":6379",
+	ConnectTimeout : time.Duration(DefaultRedisConnectTimeout)*time.Millisecond,
+	ReadTimeout    : time.Duration(DefaultRedisReadTimeout)*time.Millisecond,
+	WriteTimeout   : time.Duration(DefaultRedisWriteTimeout)*time.Millisecond,
+	Database       :  1,
+	KeyPrefix      : "push",
+}
 
 func SelectServer(serverList []string, serverNum int) string {
 	return serverList[rand.Intn(serverNum)]
 }
-
 
 func GetSessionFromCID() {
 	

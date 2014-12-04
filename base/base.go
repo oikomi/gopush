@@ -18,5 +18,4 @@ package base
 
 type Config interface {
 	LoadConfig(configfile string) (*Config, error)
-
 }
