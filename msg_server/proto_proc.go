@@ -69,7 +69,14 @@ func (self *ProtoProc)procSendMessageP2P(cmd protocol.Cmd, session *link.Session
 	glog.Info("procSendMessageP2P")
 	send2ID := string(cmd.Args[0])
 	//send2Msg := string(cmd.Args[1])
-	common.GetSessionFromCID(self.msgServer.redisStore, send2ID)
+	store_session, err := common.GetSessionFromCID(self.msgServer.redisStore, send2ID)
+	if err != nil {
+		glog.Error(err.Error())
+	}
+	
+	if store_session.MsgServerAddr == self.msgServer.cfg.LocalIP {
+		glog.Info("in the same server")
+	}
 }
 
 func (self *ProtoProc)procSubscribeChannel(cmd protocol.Cmd, session *link.Session) {
