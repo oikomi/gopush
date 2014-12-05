@@ -92,6 +92,8 @@ func (self *MsgServer)parseProtocol(cmd []byte, session *link.Session) error {
 				glog.Error("error:", err)
 				return err
 			}
+		case protocol.CREATE_TOPIC_CMD:
+			pp.procCreateTopic(c, session)
 		}
 
 	return err

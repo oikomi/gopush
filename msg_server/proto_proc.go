@@ -98,3 +98,10 @@ func (self *ProtoProc)procSubscribeChannel(cmd protocol.Cmd, session *link.Sessi
 	channelName := string(cmd.Args[0])
 	self.msgServer.channels[channelName].Join(session, nil)
 }
+
+func (self *ProtoProc)procCreateTopic(cmd protocol.Cmd, session *link.Session) {
+	glog.Info("procCreateTopic")
+	topicName := string(cmd.Args[0])
+	topic := NewTopic(topicName)
+	glog.Info(topic)
+}

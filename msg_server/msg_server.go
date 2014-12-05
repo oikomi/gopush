@@ -89,7 +89,7 @@ func main() {
 	ms.createChannels()
 
 	ms.server.AcceptLoop(func(session *link.Session) {
-		glog.Info("client", session.Conn().RemoteAddr().String(), "in")
+		glog.Info("client ", session.Conn().RemoteAddr().String(), " | in")
 		
 		go handleSession(ms, session)
 	})
