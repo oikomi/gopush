@@ -88,6 +88,10 @@ func (self *MsgServer)parseProtocol(cmd []byte, session *link.Session) error {
 			}
 		case protocol.SEND_MESSAGE_P2P_CMD:
 			pp.procSendMessageP2P(c, session)
+			if err != nil {
+				glog.Error("error:", err)
+				return err
+			}
 		}
 
 	return err

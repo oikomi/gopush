@@ -103,5 +103,9 @@ func main() {
 	
 	defer msgServerClient.Close(nil)
 	
+	msgServerClient.ReadLoop(func(msg link.InBuffer) {
+		glog.Info(string(msg.Get()))
+	})
+	
 	glog.Flush()
 }

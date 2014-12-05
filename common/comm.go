@@ -46,7 +46,7 @@ func GetSessionFromCID(redisStore  *storage.RedisStore, ID string) (*storage.Sto
 	session ,err := redisStore.Get(ID)
 	
 	if err != nil {
-		glog.Error("error:", err)
+		glog.Warningf("no ID : %s", ID)
 		return nil, err
 	}
 	if session != nil {

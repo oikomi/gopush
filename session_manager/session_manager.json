@@ -4,7 +4,8 @@
 	"LogFile" : "session_manager.log",
 	
 	"MsgServerList" : [
-		"127.0.0.1:19000"
+		"127.0.0.1:19000",
+		"127.0.0.1:19001"
 	],
 	
 	"Redis" : { 
