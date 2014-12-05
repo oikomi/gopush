@@ -1,0 +1,5 @@
+{
+	"TransportProtocols" : "tcp",
+	"Listen" : "127.0.0.1:20000",
+	"LogFile" : "router.log"
+}

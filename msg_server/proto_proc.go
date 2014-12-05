@@ -88,7 +88,12 @@ func (self *ProtoProc)procSendMessageP2P(cmd protocol.Cmd, session *link.Session
 		if err != nil {
 			glog.Fatalln(err.Error())
 		}
+	} else {
+		
+	
 	}
+	
+	
 	
 	return nil
 }

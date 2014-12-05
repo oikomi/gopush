@@ -21,7 +21,7 @@ import (
 	"log"
 )
 
-type GatewayConfig struct {
+type RouterConfig struct {
 	configfile string
 	TransportProtocols string
 	Listen string
@@ -30,13 +30,13 @@ type GatewayConfig struct {
 	MsgServerNum int
 }
 
-func NewGatewayConfig(configfile string) *GatewayConfig {
-	return &GatewayConfig {
+func NewRouterConfig(configfile string) *RouterConfig {
+	return &RouterConfig {
 		configfile : configfile,
 	}
 }
 
-func (self *GatewayConfig)LoadConfig() error {
+func (self *RouterConfig)LoadConfig() error {
 	file, err := os.Open(self.configfile)
 	if err != nil {
 		log.Fatalln("Open configfile failed")
@@ -52,7 +52,7 @@ func (self *GatewayConfig)LoadConfig() error {
 	return nil
 }
 
-func (self *GatewayConfig)DumpConfig() {
+func (self *RouterConfig)DumpConfig() {
 	//fmt.Printf("Mode: %s\nListen: %s\nServer: %s\nLogfile: %s\n", 
 	//cfg.Mode, cfg.Listen, cfg.Server, cfg.Logfile)
 }

@@ -66,9 +66,9 @@ func main() {
 		return
 	}
 	
-	protocol := link.PacketN(2, link.BigEndianBO, link.LittleEndianBF)
+	p := link.PacketN(2, link.BigEndianBO, link.LittleEndianBF)
 	
-	server, err := link.Listen(cfg.TransportProtocols, cfg.Listen, protocol)
+	server, err := link.Listen(cfg.TransportProtocols, cfg.Listen, p)
 	if err != nil {
 		glog.Error(err.Error())
 		return

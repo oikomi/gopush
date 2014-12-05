@@ -52,9 +52,24 @@ func version() {
 	fmt.Printf("router version %s Copyright (c) 2014 Harold Miao (miaohonghit@gmail.com)  \n", VERSION)
 }
 
+var InputConfFile = flag.String("conf_file", "router.json", "input conf file name")   
+
 func main() {
 	version()
 	fmt.Printf("built on %s\n", BuildTime())
 	flag.Parse()
-
+	cfg := NewRouterConfig(*InputConfFile)
+	err := cfg.LoadConfig()
+	if err != nil {
+		glog.Error(err.Error())
+		return
+	}
+	p := link.PacketN(2, link.BigEndianBO, link.LittleEndianBF)
+	
+	server, err := link.Listen(cfg.TransportProtocols, cfg.Listen, p)
+	if err != nil {
+		glog.Error(err.Error())
+		return
+	}
+	glog.Info("server start: ", server.Listener().Addr().String())
 }
