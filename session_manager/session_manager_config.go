@@ -19,7 +19,7 @@ import (
 	"os"
 	"encoding/json"
 	"time"
-	"log"
+	"github.com/golang/glog"
 )
 
 type SessionManagerConfig struct {
@@ -46,7 +46,7 @@ func NewSessionManagerConfig(configfile string) *SessionManagerConfig {
 func (self *SessionManagerConfig)LoadConfig() error {
 	file, err := os.Open(self.configfile)
 	if err != nil {
-		log.Fatalln("Open configfile failed")
+		glog.Error(err.Error())
 		return err
 	}
 	defer file.Close()

@@ -18,9 +18,8 @@ package main
 import (
 	"os"
 	"encoding/json"
-	//"flag"
 	"time"
-	"log"
+	"github.com/golang/glog"
 )
 
 type MsgServerConfig struct {
@@ -48,7 +47,7 @@ func NewMsgServerConfig(configfile string) *MsgServerConfig {
 func (self *MsgServerConfig)LoadConfig() error {
 	file, err := os.Open(self.configfile)
 	if err != nil {
-		log.Fatalln("Open configfile failed")
+		glog.Error(err.Error())
 		return err
 	}
 	defer file.Close()

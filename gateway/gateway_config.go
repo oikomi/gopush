@@ -18,7 +18,7 @@ package main
 import (
 	"os"
 	"encoding/json"
-	"log"
+	"github.com/golang/glog"
 )
 
 type GatewayConfig struct {
@@ -39,7 +39,7 @@ func NewGatewayConfig(configfile string) *GatewayConfig {
 func (self *GatewayConfig)LoadConfig() error {
 	file, err := os.Open(self.configfile)
 	if err != nil {
-		log.Fatalln("Open configfile failed")
+		glog.Error(err.Error())
 		return err
 	}
 	defer file.Close()
