@@ -18,17 +18,29 @@ package main
 import (
 	"github.com/golang/glog"
 	"encoding/json"
+	"time"
 	"github.com/funny/link"
 	"github.com/oikomi/gopush/protocol"
+	"github.com/oikomi/gopush/storage"
 )
 
 type Router struct {
-	cfg    *RouterConfig
+	cfg         *RouterConfig
+	redisStore  *storage.RedisStore
 }   
 
 func NewRouter(cfg *RouterConfig) *Router {
 	return &Router {
 		cfg : cfg,
+		redisStore : storage.NewRedisStore(&storage.RedisStoreOptions {
+			Network :   "tcp",
+			Address :   cfg.Redis.Port,
+			ConnectTimeout : time.Duration(cfg.Redis.ConnectTimeout)*time.Millisecond,
+			ReadTimeout : time.Duration(cfg.Redis.ReadTimeout)*time.Millisecond,
+			WriteTimeout : time.Duration(cfg.Redis.WriteTimeout)*time.Millisecond,
+			Database :  1,
+			KeyPrefix : "push",
+		}),
 	}
 }
 

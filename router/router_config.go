@@ -18,7 +18,8 @@ package main
 import (
 	"os"
 	"encoding/json"
-	"log"
+	"github.com/golang/glog"
+	"time"
 )
 
 type RouterConfig struct {
@@ -27,6 +28,13 @@ type RouterConfig struct {
 	Listen string
 	LogFile    string
 	MsgServerList []string
+	Redis struct { 
+		Addr string 
+		Port string
+		ConnectTimeout time.Duration
+		ReadTimeout time.Duration
+		WriteTimeout time.Duration
+	} 
 }
 
 func NewRouterConfig(configfile string) *RouterConfig {
@@ -38,7 +46,7 @@ func NewRouterConfig(configfile string) *RouterConfig {
 func (self *RouterConfig)LoadConfig() error {
 	file, err := os.Open(self.configfile)
 	if err != nil {
-		log.Fatalln("Open configfile failed")
+		glog.Error(err.Error())
 		return err
 	}
 	defer file.Close()

@@ -20,6 +20,7 @@ import (
 	"flag"
 	"github.com/funny/link"
 	"github.com/oikomi/gopush/protocol"
+	"github.com/oikomi/gopush/common"
 )
 
 func init() {
@@ -39,6 +40,17 @@ func NewProtoProc(r *Router) *ProtoProc {
 
 func (self *ProtoProc)procSendMsgP2P(cmd protocol.Cmd, session *link.Session) error {
 	glog.Info("procSendMsgP2P")
+	var err error
+	send2ID := string(cmd.Args[0])
+	send2Msg := string(cmd.Args[1])
+	glog.Info(send2Msg)
+	store_session, err := common.GetSessionFromCID(self.Router.redisStore, send2ID)
+	if err != nil {
+		glog.Warningf("no ID : %s", send2ID)
+		
+		return err
+	}
+	glog.Info(store_session)
 	return nil
 }
 
