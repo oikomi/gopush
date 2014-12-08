@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"github.com/golang/glog"
 	"github.com/funny/link"
+	"github.com/oikomi/gopush/base"
 	"github.com/oikomi/gopush/protocol"
 	"github.com/oikomi/gopush/storage"
 )
@@ -33,8 +34,8 @@ func init() {
 
 type MsgServer struct {
 	cfg         *MsgServerConfig
-	sessions    SessionMap
-	channels    ChannelMap
+	sessions    base.SessionMap
+	channels    base.ChannelMap
 	server      *link.Server
 	redisStore  *storage.RedisStore
 }
@@ -42,8 +43,8 @@ type MsgServer struct {
 func NewMsgServer(cfg *MsgServerConfig) *MsgServer {
 	return &MsgServer {
 		cfg        : cfg,
-		sessions   : make(SessionMap),
-		channels   : make(ChannelMap),
+		sessions   : make(base.SessionMap),
+		channels   : make(base.ChannelMap),
 		server     : new(link.Server),
 		redisStore : storage.NewRedisStore(&storage.RedisStoreOptions {
 			Network :   "tcp",
@@ -58,7 +59,7 @@ func NewMsgServer(cfg *MsgServerConfig) *MsgServer {
 }
 
 func (self *MsgServer)createChannels() {
-	for _, c := range ChannleList {
+	for _, c := range base.ChannleList {
 		channel := link.NewChannel(self.server.Protocol())
 		self.channels[c] = channel
 	}

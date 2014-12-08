@@ -1,5 +1,9 @@
 {
 	"TransportProtocols" : "tcp",
 	"Listen" : "127.0.0.1:20000",
-	"LogFile" : "router.log"
+	"LogFile" : "router.log",
+	"MsgServerList" : [
+		"127.0.0.1:19000",
+		"127.0.0.1:19001"
+	]
 }

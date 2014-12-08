@@ -26,6 +26,7 @@ type RouterConfig struct {
 	TransportProtocols string
 	Listen string
 	LogFile    string
+	MsgServerList []string
 }
 
 func NewRouterConfig(configfile string) *RouterConfig {

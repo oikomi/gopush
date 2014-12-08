@@ -13,16 +13,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package protocol
 
 import (
 	"github.com/funny/link"
 )
 
 type ChannelMap map[string]*link.Channel
+type SessionMap map[string]*link.Session
 
 const (
 	SYSCTRL_CLIENT_STATUS = "/sysctrl/client-status"
+	SYSCTRL_SEND = "/sysctrl/send"
 	/*
 	/sysctrl/publish
 	/sysctrl/send
@@ -31,3 +33,11 @@ const (
 	/sysctrl/topic-status 
 	*/
 )
+
+var ChannleList []string
+
+func init() {
+	ChannleList = []string{SYSCTRL_CLIENT_STATUS, SYSCTRL_SEND}
+}
+
+

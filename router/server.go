@@ -17,23 +17,22 @@ package main
 
 import (
 	"github.com/golang/glog"
-	"encoding/json"
+	//"encoding/json"
 	"github.com/funny/link"
-	"github.com/oikomi/gopush/storage"
 	"github.com/oikomi/gopush/protocol"
 )
 
-type SessionManager struct {
-	cfg    *SessionManagerConfig
+type Router struct {
+	cfg    *RouterConfig
 }   
 
-func NewSessionManager(cfg *SessionManagerConfig) *SessionManager {
-	return &SessionManager {
+func NewRouter(cfg *RouterConfig) *Router {
+	return &Router {
 		cfg : cfg,
 	}
 }
 
-func (self *SessionManager)connectMsgServer(ms string) (*link.Session, error) {
+func (self *Router)connectMsgServer(ms string) (*link.Session, error) {
 	p := link.PacketN(2, link.BigEndianBO, link.LittleEndianBF)
 	client, err := link.Dial("tcp", ms, p)
 	if err != nil {
@@ -44,28 +43,14 @@ func (self *SessionManager)connectMsgServer(ms string) (*link.Session, error) {
 	return client, err
 }
 
-func (self *SessionManager)handleMsgServerClient(msc *link.Session, redisStore *storage.RedisStore) {
+func (self *Router)handleMsgServerClient(msc *link.Session) {
 	msc.ReadLoop(func(msg link.InBuffer) {
 		glog.Info("msg_server", msc.Conn().RemoteAddr().String(),"say:", string(msg.Get()))
 		
-		var ss storage.StoreSession
-		
-		glog.Info(string(msg.Get()))
-		
-		err := json.Unmarshal(msg.Get(), &ss)
-		if err != nil {
-			glog.Error("error:", err)
-		}
-
-		err = redisStore.Set(&ss)
-		if err != nil {
-			glog.Error("error:", err)
-		}
-		glog.Info("set sesion id success")
 	})
 }
 
-func (self *SessionManager)subscribeChannels(redisStore *storage.RedisStore) error {
+func (self *Router)subscribeChannels() error {
 	glog.Info("subscribeChannels")
 	var msgServerClientList []*link.Session
 	for _, ms := range self.cfg.MsgServerList {
@@ -77,7 +62,7 @@ func (self *SessionManager)subscribeChannels(redisStore *storage.RedisStore) err
 		cmd := protocol.NewCmd()
 		
 		cmd.CmdName = protocol.SUBSCRIBE_CHANNEL_CMD
-		cmd.Args = append(cmd.Args, protocol.SYSCTRL_CLIENT_STATUS)
+		cmd.Args = append(cmd.Args, protocol.SYSCTRL_SEND)
 		
 		err = msgServerClient.Send(link.JSON {
 			cmd,
@@ -91,7 +76,7 @@ func (self *SessionManager)subscribeChannels(redisStore *storage.RedisStore) err
 	}
 
 	for _, msc := range msgServerClientList {
-		go self.handleMsgServerClient(msc, redisStore)
+		go self.handleMsgServerClient(msc)
 	}
 	return nil
 }

@@ -50,8 +50,8 @@ func (self *ProtoProc)procClientID(cmd protocol.Cmd, session *link.Session) erro
 	sessionStore.MsgServerAddr = self.msgServer.cfg.LocalIP
 	sessionStore.ID = strconv.FormatUint(session.Id(), 10)
 	
-	if self.msgServer.channels[SYSCTRL_CLIENT_STATUS] != nil {
-		err = self.msgServer.channels[SYSCTRL_CLIENT_STATUS].Broadcast(link.JSON {
+	if self.msgServer.channels[protocol.SYSCTRL_CLIENT_STATUS] != nil {
+		err = self.msgServer.channels[protocol.SYSCTRL_CLIENT_STATUS].Broadcast(link.JSON {
 			sessionStore,
 		})
 	}

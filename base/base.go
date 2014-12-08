@@ -15,6 +15,19 @@
 
 package base
 
+import (
+	"github.com/funny/link"
+	"github.com/oikomi/gopush/protocol"
+)
+
+type ChannelMap map[string]*link.Channel
+type SessionMap map[string]*link.Session
+
+var ChannleList []string
+
+func init() {
+	ChannleList = []string{protocol.SYSCTRL_CLIENT_STATUS, protocol.SYSCTRL_SEND}
+}
 
 type Config interface {
 	LoadConfig(configfile string) (*Config, error)

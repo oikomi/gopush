@@ -72,4 +72,10 @@ func main() {
 		return
 	}
 	glog.Info("server start: ", server.Listener().Addr().String())
+	
+	r := NewRouter(cfg)
+	go r.subscribeChannels()
+	server.AcceptLoop(func(session *link.Session) {
+	
+	})
 }
