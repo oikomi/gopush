@@ -17,7 +17,7 @@ package main
 
 import (
 	"github.com/golang/glog"
-	//"encoding/json"
+	"encoding/json"
 	"github.com/funny/link"
 	"github.com/oikomi/gopush/protocol"
 )
@@ -45,8 +45,18 @@ func (self *Router)connectMsgServer(ms string) (*link.Session, error) {
 
 func (self *Router)handleMsgServerClient(msc *link.Session) {
 	msc.ReadLoop(func(msg link.InBuffer) {
-		glog.Info("msg_server", msc.Conn().RemoteAddr().String(),"say:", string(msg.Get()))
-		
+		glog.Info("msg_server", msc.Conn().RemoteAddr().String()," say: ", string(msg.Get()))
+		var c protocol.Cmd
+		pp := NewProtoProc(self)
+		err := json.Unmarshal(msg.Get(), &c)
+		if err != nil {
+			glog.Error("error:", err)
+		}
+		switch c.CmdName {
+			case protocol.SEND_MESSAGE_P2P_CMD:
+				pp.procSendMsgP2P(c, msc)
+				
+			}
 	})
 }
 

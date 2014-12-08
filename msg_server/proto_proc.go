@@ -67,6 +67,7 @@ func (self *ProtoProc)procClientID(cmd protocol.Cmd, session *link.Session) erro
 
 func (self *ProtoProc)procSendMessageP2P(cmd protocol.Cmd, session *link.Session) error {
 	glog.Info("procSendMessageP2P")
+	var err error
 	send2ID := string(cmd.Args[0])
 	send2Msg := string(cmd.Args[1])
 	store_session, err := common.GetSessionFromCID(self.msgServer.redisStore, send2ID)
@@ -89,8 +90,16 @@ func (self *ProtoProc)procSendMessageP2P(cmd protocol.Cmd, session *link.Session
 			glog.Fatalln(err.Error())
 		}
 	} else {
-		
-	
+		if self.msgServer.channels[protocol.SYSCTRL_SEND] != nil {
+			err = self.msgServer.channels[protocol.SYSCTRL_SEND].Broadcast(link.JSON {
+				cmd,
+			})
+		}
+
+		if err != nil {
+			glog.Error(err.Error())
+			return err
+		}
 	}
 	
 	
