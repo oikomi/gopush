@@ -114,7 +114,7 @@ func (self *ProtoProc)procRouteMessageP2P(cmd protocol.Cmd, session *link.Sessio
 	var err error
 	send2ID := string(cmd.Args[0])
 	send2Msg := string(cmd.Args[1])
-	_, err := common.GetSessionFromCID(self.msgServer.redisStore, send2ID)
+	_, err = common.GetSessionFromCID(self.msgServer.redisStore, send2ID)
 	if err != nil {
 		glog.Warningf("no ID : %s", send2ID)
 		
