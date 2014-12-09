@@ -16,11 +16,11 @@
 package main
 
 import (
-	"flag"
 	"fmt"
-	"github.com/oikomi/gopush/common"
+	"flag"
 	"github.com/golang/glog"
 	"github.com/funny/link"
+	"github.com/oikomi/gopush/common"
 )
 
 /*

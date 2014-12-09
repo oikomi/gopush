@@ -16,8 +16,8 @@
 package common
 
 import (
-	"math/rand"
 	"time"
+	"math/rand"
 	"github.com/golang/glog"
 	"github.com/oikomi/gopush/storage"
 )
@@ -29,12 +29,12 @@ var DefaultRedisReadTimeout    uint32 = 1000
 var DefaultRedisWriteTimeout   uint32 = 1000
 
 var DefaultRedisOptions storage.RedisStoreOptions = storage.RedisStoreOptions {
-	Network        :   "tcp",
-	Address        :   ":6379",
+	Network        : "tcp",
+	Address        : ":6379",
 	ConnectTimeout : time.Duration(DefaultRedisConnectTimeout)*time.Millisecond,
 	ReadTimeout    : time.Duration(DefaultRedisReadTimeout)*time.Millisecond,
 	WriteTimeout   : time.Duration(DefaultRedisWriteTimeout)*time.Millisecond,
-	Database       :  1,
+	Database       : 1,
 	KeyPrefix      : "push",
 }
 
@@ -54,5 +54,4 @@ func GetSessionFromCID(redisStore  *storage.RedisStore, ID string) (*storage.Sto
 	}
 	
 	return session, nil
-
 }

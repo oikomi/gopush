@@ -22,12 +22,12 @@ import (
 )
 
 type GatewayConfig struct {
-	configfile string
+	configfile         string
 	TransportProtocols string
-	Listen string
-	LogFile    string
-	MsgServerList []string
-	MsgServerNum int
+	Listen             string
+	LogFile            string
+	MsgServerList      []string
+	MsgServerNum       int
 }
 
 func NewGatewayConfig(configfile string) *GatewayConfig {

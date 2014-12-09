@@ -21,19 +21,18 @@ const (
 	SEND_MESSAGE_P2P_CMD    = "SEND_MESSAGE_P2P"
 	RESP_MESSAGE_P2P_CMD    = "RESP_MESSAGE_P2P"
 	ROUTE_MESSAGE_P2P_CMD   = "ROUTE_MESSAGE_P2P"
-	
-	CREATE_TOPIC_CMD       = "CREATE_TOPIC"
+	CREATE_TOPIC_CMD        = "CREATE_TOPIC"
 )
 
 type Cmd struct {
 	CmdName string
-	Args []string
+	Args    []string
 }
 
 func NewCmd() *Cmd {
 	return &Cmd {
 		CmdName : "",
-		Args : make([]string, 0),
+		Args    : make([]string, 0),
 	}
 }
 
@@ -43,12 +42,12 @@ func (self *Cmd)ParseCmd(msglist []string) {
 }
 
 type ClientIDCmd struct {
-	CmdName string
+	CmdName  string
 	ClientID string
 }
 
 type SendMessageP2PCmd struct {
 	CmdName string
-	ID string
-	Msg string
+	ID      string
+	Msg     string
 }

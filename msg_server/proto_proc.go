@@ -104,8 +104,6 @@ func (self *ProtoProc)procSendMessageP2P(cmd protocol.Cmd, session *link.Session
 		}
 	}
 	
-	
-	
 	return nil
 }
 
