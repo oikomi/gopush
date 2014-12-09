@@ -109,6 +109,34 @@ func (self *ProtoProc)procSendMessageP2P(cmd protocol.Cmd, session *link.Session
 	return nil
 }
 
+func (self *ProtoProc)procRouteMessageP2P(cmd protocol.Cmd, session *link.Session) error {
+	glog.Info("procRouteMessageP2P")
+	var err error
+	send2ID := string(cmd.Args[0])
+	send2Msg := string(cmd.Args[1])
+	_, err := common.GetSessionFromCID(self.msgServer.redisStore, send2ID)
+	if err != nil {
+		glog.Warningf("no ID : %s", send2ID)
+		
+		return err
+	}
+
+	resp := protocol.NewCmd()
+	resp.CmdName = protocol.RESP_MESSAGE_P2P_CMD
+	resp.Args = append(resp.Args, send2Msg)
+	
+	if self.msgServer.sessions[send2ID] != nil {
+		self.msgServer.sessions[send2ID].Send(link.JSON {
+			resp,
+		})
+		if err != nil {
+			glog.Fatalln(err.Error())
+		}
+	}
+
+	return nil
+}
+
 func (self *ProtoProc)procSubscribeChannel(cmd protocol.Cmd, session *link.Session) {
 	glog.Info("procSubscribeChannel")
 	channelName := string(cmd.Args[0])

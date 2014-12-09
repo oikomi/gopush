@@ -93,6 +93,12 @@ func (self *MsgServer)parseProtocol(cmd []byte, session *link.Session) error {
 				glog.Error("error:", err)
 				return err
 			}
+		case protocol.ROUTE_MESSAGE_P2P_CMD:
+			pp.procRouteMessageP2P(c, session)
+			if err != nil {
+				glog.Error("error:", err)
+				return err
+			}
 		case protocol.CREATE_TOPIC_CMD:
 			pp.procCreateTopic(c, session)
 		}

@@ -50,7 +50,18 @@ func (self *ProtoProc)procSendMsgP2P(cmd protocol.Cmd, session *link.Session) er
 		
 		return err
 	}
-	glog.Info(store_session)
+	glog.Info(store_session.MsgServerAddr)
+	
+	cmd.CmdName = protocol.ROUTE_MESSAGE_P2P_CMD
+	
+	err = self.Router.msgServerClientMap[store_session.MsgServerAddr].Send(link.JSON {
+		cmd,
+	})
+	if err != nil {
+		glog.Error("error:", err)
+		return err
+	}
+	
 	return nil
 }
 

@@ -25,21 +25,23 @@ import (
 )
 
 type Router struct {
-	cfg         *RouterConfig
-	redisStore  *storage.RedisStore
+	cfg                 *RouterConfig
+	msgServerClientMap  map[string]*link.Session
+	redisStore          *storage.RedisStore
 }   
 
 func NewRouter(cfg *RouterConfig) *Router {
 	return &Router {
-		cfg : cfg,
-		redisStore : storage.NewRedisStore(&storage.RedisStoreOptions {
-			Network :   "tcp",
-			Address :   cfg.Redis.Port,
-			ConnectTimeout : time.Duration(cfg.Redis.ConnectTimeout)*time.Millisecond,
-			ReadTimeout : time.Duration(cfg.Redis.ReadTimeout)*time.Millisecond,
-			WriteTimeout : time.Duration(cfg.Redis.WriteTimeout)*time.Millisecond,
-			Database :  1,
-			KeyPrefix : "push",
+		cfg                : cfg,
+		msgServerClientMap : make(map[string]*link.Session),
+		redisStore         : storage.NewRedisStore(&storage.RedisStoreOptions {
+					Network :   "tcp",
+					Address :   cfg.Redis.Port,
+					ConnectTimeout : time.Duration(cfg.Redis.ConnectTimeout)*time.Millisecond,
+					ReadTimeout : time.Duration(cfg.Redis.ReadTimeout)*time.Millisecond,
+					WriteTimeout : time.Duration(cfg.Redis.WriteTimeout)*time.Millisecond,
+					Database :  1,
+					KeyPrefix : "push",
 		}),
 	}
 }
@@ -77,7 +79,6 @@ func (self *Router)handleMsgServerClient(msc *link.Session) {
 
 func (self *Router)subscribeChannels() error {
 	glog.Info("subscribeChannels")
-	var msgServerClientList []*link.Session
 	for _, ms := range self.cfg.MsgServerList {
 		msgServerClient, err := self.connectMsgServer(ms)
 		if err != nil {
@@ -97,10 +98,10 @@ func (self *Router)subscribeChannels() error {
 			return err
 		}
 		
-		msgServerClientList = append(msgServerClientList, msgServerClient)
+		self.msgServerClientMap[ms] = msgServerClient
 	}
 
-	for _, msc := range msgServerClientList {
+	for _, msc := range self.msgServerClientMap {
 		go self.handleMsgServerClient(msc)
 	}
 	return nil
