@@ -61,6 +61,7 @@ func (self *ProtoProc)procClientID(cmd protocol.Cmd, session *link.Session) erro
 		return err
 	}
 	self.msgServer.sessions[string(cmd.Args[0])] = session
+	self.msgServer.heartBeatSessions[string(cmd.Args[0])] = session
 	
 	return err
 }

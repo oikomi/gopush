@@ -22,6 +22,7 @@ import (
 
 type ChannelMap map[string]*link.Channel
 type SessionMap map[string]*link.Session
+type HeartBeatSessionMap map[string]*link.Session
 
 var ChannleList []string
 

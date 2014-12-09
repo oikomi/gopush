@@ -16,7 +16,6 @@
 package main
 
 import (
-	//"fmt"
 	"time"
 	"flag"
 	"encoding/json"
@@ -33,11 +32,12 @@ func init() {
 }
 
 type MsgServer struct {
-	cfg         *MsgServerConfig
-	sessions    base.SessionMap
-	channels    base.ChannelMap
-	server      *link.Server
-	redisStore  *storage.RedisStore
+	cfg               *MsgServerConfig
+	sessions          base.SessionMap
+	heartBeatSessions base.HeartBeatSessionMap
+	channels          base.ChannelMap
+	server            *link.Server
+	redisStore        *storage.RedisStore
 }
 
 func NewMsgServer(cfg *MsgServerConfig) *MsgServer {
@@ -47,13 +47,13 @@ func NewMsgServer(cfg *MsgServerConfig) *MsgServer {
 		channels   : make(base.ChannelMap),
 		server     : new(link.Server),
 		redisStore : storage.NewRedisStore(&storage.RedisStoreOptions {
-			Network :   "tcp",
-			Address :   cfg.Redis.Port,
+			Network        : "tcp",
+			Address        : cfg.Redis.Port,
 			ConnectTimeout : time.Duration(cfg.Redis.ConnectTimeout)*time.Millisecond,
-			ReadTimeout : time.Duration(cfg.Redis.ReadTimeout)*time.Millisecond,
-			WriteTimeout : time.Duration(cfg.Redis.WriteTimeout)*time.Millisecond,
-			Database :  1,
-			KeyPrefix : "push",
+			ReadTimeout    : time.Duration(cfg.Redis.ReadTimeout)*time.Millisecond,
+			WriteTimeout   : time.Duration(cfg.Redis.WriteTimeout)*time.Millisecond,
+			Database       : 1,
+			KeyPrefix      : "push",
 		}),
 	}
 }
