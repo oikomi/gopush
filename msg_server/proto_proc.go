@@ -83,11 +83,13 @@ func (self *ProtoProc)procSendMessageP2P(cmd protocol.Cmd, session *link.Session
 		resp.CmdName = protocol.RESP_MESSAGE_P2P_CMD
 		resp.Args = append(resp.Args, send2Msg)
 		
-		self.msgServer.sessions[send2ID].Send(link.JSON {
-			resp,
-		})
-		if err != nil {
-			glog.Fatalln(err.Error())
+		if self.msgServer.sessions[send2ID] != nil {
+			self.msgServer.sessions[send2ID].Send(link.JSON {
+				resp,
+			})
+			if err != nil {
+				glog.Fatalln(err.Error())
+			}
 		}
 	} else {
 		if self.msgServer.channels[protocol.SYSCTRL_SEND] != nil {

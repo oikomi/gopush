@@ -66,7 +66,10 @@ func (self *Router)handleMsgServerClient(msc *link.Session) {
 		}
 		switch c.CmdName {
 			case protocol.SEND_MESSAGE_P2P_CMD:
-				pp.procSendMsgP2P(c, msc)
+				err := pp.procSendMsgP2P(c, msc)
+				if err != nil {
+					glog.Warning(err.Error())
+				}
 				
 			}
 	})
