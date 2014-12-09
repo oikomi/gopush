@@ -16,8 +16,8 @@
 package main
 
 import (
-	"github.com/golang/glog"
 	"flag"
+	"github.com/golang/glog"
 	"github.com/funny/link"
 	"github.com/oikomi/gopush/protocol"
 	"github.com/oikomi/gopush/common"
@@ -44,6 +44,8 @@ func (self *ProtoProc)procSendMsgP2P(cmd protocol.Cmd, session *link.Session) er
 	send2ID := string(cmd.Args[0])
 	send2Msg := string(cmd.Args[1])
 	glog.Info(send2Msg)
+	self.Router.readMutex.Lock()
+	defer self.Router.readMutex.Unlock()
 	store_session, err := common.GetSessionFromCID(self.Router.redisStore, send2ID)
 	if err != nil {
 		glog.Warningf("no ID : %s", send2ID)

@@ -16,9 +16,10 @@
 package main
 
 import (
-	"github.com/golang/glog"
-	"encoding/json"
+	"sync"
 	"time"
+	"encoding/json"
+	"github.com/golang/glog"
 	"github.com/funny/link"
 	"github.com/oikomi/gopush/protocol"
 	"github.com/oikomi/gopush/storage"
@@ -28,6 +29,7 @@ type Router struct {
 	cfg                 *RouterConfig
 	msgServerClientMap  map[string]*link.Session
 	redisStore          *storage.RedisStore
+	readMutex           sync.Mutex
 }   
 
 func NewRouter(cfg *RouterConfig) *Router {
