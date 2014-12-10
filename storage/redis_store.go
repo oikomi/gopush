@@ -17,6 +17,7 @@ package storage
 
 import (
 	"time"
+	"sync"
 	"encoding/json"
 	"errors"
 	"github.com/garyburd/redigo/redis"
@@ -46,14 +47,18 @@ type RedisStoreOptions struct {
 }
 
 type RedisStore struct {
-	opts *RedisStoreOptions
-	conn redis.Conn
+	opts        *RedisStoreOptions
+	conn        redis.Conn
+	rwMutex     sync.Mutex
 }
 
 // Create a redis session store with the specified options.
 func NewRedisStore(opts *RedisStoreOptions) *RedisStore {
 	var err error
-	rs := &RedisStore{opts, nil}
+	rs := &RedisStore{
+		opts : opts, 
+		conn : nil,
+		}
 	rs.conn, err = redis.DialTimeout(opts.Network, opts.Address, opts.ConnectTimeout,
 		opts.ReadTimeout, opts.WriteTimeout)
 	if err != nil {
@@ -63,12 +68,14 @@ func NewRedisStore(opts *RedisStoreOptions) *RedisStore {
 }
 
 // Get the session from the store.
-func (this *RedisStore) Get(id string) (*StoreSession, error) {
+func (self *RedisStore) Get(id string) (*StoreSession, error) {
+	self.rwMutex.Lock()
+	defer self.rwMutex.Unlock()
 	key := id
-	if this.opts.KeyPrefix != "" {
-		key = this.opts.KeyPrefix + ":" + id
+	if self.opts.KeyPrefix != "" {
+		key = self.opts.KeyPrefix + ":" + id
 	}
-	b, err := redis.Bytes(this.conn.Do("GET", key))
+	b, err := redis.Bytes(self.conn.Do("GET", key))
 	if err != nil {
 		return nil, err
 	}
@@ -81,36 +88,40 @@ func (this *RedisStore) Get(id string) (*StoreSession, error) {
 }
 
 // Save the session into the store.
-func (this *RedisStore) Set(sess *StoreSession) error {
+func (self *RedisStore) Set(sess *StoreSession) error {
+	self.rwMutex.Lock()
+	defer self.rwMutex.Unlock()
 	b, err := json.Marshal(sess)
 	if err != nil {
 		return err
 	}
 	key := sess.ClientID
-	if this.opts.KeyPrefix != "" {
-		key = this.opts.KeyPrefix + ":" + sess.ClientID
+	if self.opts.KeyPrefix != "" {
+		key = self.opts.KeyPrefix + ":" + sess.ClientID
 	}
 	ttl := sess.MaxAge
 	if ttl == 0 {
 		// Browser session, set to specified TTL
-		ttl = this.opts.BrowserSessServerTTL
+		ttl = self.opts.BrowserSessServerTTL
 		if ttl == 0 {
 			ttl = 2 * 24 * time.Hour // Default to 2 days
 		}
 	}
-	_, err = this.conn.Do("SETEX", key, int(ttl.Seconds()), b)
+	_, err = self.conn.Do("SETEX", key, int(ttl.Seconds()), b)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 // Delete the session from the store.
-func (this *RedisStore) Delete(id string) error {
+func (self *RedisStore) Delete(id string) error {
+	self.rwMutex.Lock()
+	defer self.rwMutex.Unlock()
 	key := id
-	if this.opts.KeyPrefix != "" {
-		key = this.opts.KeyPrefix + ":" + id
+	if self.opts.KeyPrefix != "" {
+		key = self.opts.KeyPrefix + ":" + id
 	}
-	_, err := this.conn.Do("DEL", key)
+	_, err := self.conn.Do("DEL", key)
 	if err != nil {
 		return err
 	}
@@ -118,17 +129,19 @@ func (this *RedisStore) Delete(id string) error {
 }
 // Clear all sessions from the store. Requires the use of a key
 // prefix in the store options, otherwise the method refuses to delete all keys.
-func (this *RedisStore) Clear() error {
-	vals, err := this.getSessionKeys()
+func (self *RedisStore) Clear() error {
+	self.rwMutex.Lock()
+	defer self.rwMutex.Unlock()
+	vals, err := self.getSessionKeys()
 	if err != nil {
 		return err
 	}
 	if len(vals) > 0 {
-		this.conn.Send("MULTI")
+		self.conn.Send("MULTI")
 		for _, v := range vals {
-			this.conn.Send("DEL", v)
+			self.conn.Send("DEL", v)
 		}
-		_, err = this.conn.Do("EXEC")
+		_, err = self.conn.Do("EXEC")
 		if err != nil {
 			return err
 		}
@@ -138,16 +151,20 @@ func (this *RedisStore) Clear() error {
 // Get the number of session keys in the store. Requires the use of a
 // key prefix in the store options, otherwise returns -1 (cannot tell
 // session keys from other keys).
-func (this *RedisStore) Len() int {
-	vals, err := this.getSessionKeys()
+func (self *RedisStore) Len() int {
+	self.rwMutex.Lock()
+	defer self.rwMutex.Unlock()
+	vals, err := self.getSessionKeys()
 	if err != nil {
 		return -1
 	}
 	return len(vals)
 }
-func (this *RedisStore) getSessionKeys() ([]interface{}, error) {
-	if this.opts.KeyPrefix != "" {
-		return redis.Values(this.conn.Do("KEYS", this.opts.KeyPrefix+":*"))
+func (self *RedisStore) getSessionKeys() ([]interface{}, error) {
+	self.rwMutex.Lock()
+	defer self.rwMutex.Unlock()
+	if self.opts.KeyPrefix != "" {
+		return redis.Values(self.conn.Do("KEYS", self.opts.KeyPrefix+":*"))
 	}
 	return nil, ErrNoKeyPrefix
 }
