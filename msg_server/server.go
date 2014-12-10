@@ -70,7 +70,7 @@ func (self *MsgServer)createChannels() {
 func (self *MsgServer)scanDeadSession() {
 	glog.Info("scanDeadSession")
 	timer := time.NewTicker(self.cfg.ScanDeadSessionTimeout * time.Second)
-	//ttl := time.After(self.cfg.Expire * time.Second)
+	ttl := time.After(self.cfg.Expire * time.Second)
 	for {
 		select {
 		case <-timer.C:
@@ -92,8 +92,8 @@ func (self *MsgServer)scanDeadSession() {
 				}
 				
 			}()
-		//case <-ttl:
-		//	break
+		case <-ttl:
+			break
 		}
 	}
 }
