@@ -67,11 +67,13 @@ func (self *MsgServer)createChannels() {
 }
 
 func (self *MsgServer)scanDeadSession() {
+	glog.Info("scanDeadSession")
 	timer := time.NewTicker(self.cfg.ScanDeadSessionTimeout * time.Second)
-	ttl := time.After(self.cfg.Expire * time.Second)
+	//ttl := time.After(self.cfg.Expire * time.Second)
 	for {
 		select {
 		case <-timer.C:
+			glog.Info("scanDeadSession timeout")
 			go func() {
 				for id, s := range self.sessions {
 					self.scanSessionMutex.Lock()
@@ -79,12 +81,14 @@ func (self *MsgServer)scanDeadSession() {
 					if (s.State).(*base.SessionState).Alive == false {
 						glog.Info("delete" + id)
 						delete(self.sessions, id)
+					} else {
+						s.State.(*base.SessionState).Alive = false
 					}
 				}
 				
 			}()
-		case <-ttl:
-			break
+		//case <-ttl:
+		//	break
 		}
 	}
 }

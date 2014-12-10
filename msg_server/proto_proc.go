@@ -35,22 +35,19 @@ type ProtoProc struct {
 }
 
 func NewProtoProc(msgServer *MsgServer) *ProtoProc {
-	pp := &ProtoProc {
+	return &ProtoProc {
 		msgServer : msgServer,
 	}
-	
-	return pp
 }
 
 func (self *ProtoProc)procPing(cmd protocol.Cmd, session *link.Session) error {
 	glog.Info("procPing")
-	var err error
 	cid := session.State.(*base.SessionState).ClientID
 	self.msgServer.scanSessionMutex.Lock()
 	defer self.msgServer.scanSessionMutex.Unlock()
 	self.msgServer.sessions[cid].State.(*base.SessionState).Alive = true
 	
-	return err
+	return nil
 }
 
 func (self *ProtoProc)procClientID(cmd protocol.Cmd, session *link.Session) error {
