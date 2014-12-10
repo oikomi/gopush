@@ -63,16 +63,16 @@ func (self *ProtoProc)procClientID(cmd protocol.Cmd, session *link.Session) erro
 		err = self.msgServer.channels[protocol.SYSCTRL_CLIENT_STATUS].Broadcast(link.JSON {
 			sessionStore,
 		})
+		if err != nil {
+			glog.Error(err.Error())
+			return err
+		}
 	}
 
-	if err != nil {
-		glog.Error(err.Error())
-		return err
-	}
 	self.msgServer.sessions[string(cmd.Args[0])] = session
 	self.msgServer.sessions[string(cmd.Args[0])].State = base.NewSessionState(true, string(cmd.Args[0]))
 	
-	return err
+	return nil
 }
 
 func (self *ProtoProc)procSendMessageP2P(cmd protocol.Cmd, session *link.Session) error {
