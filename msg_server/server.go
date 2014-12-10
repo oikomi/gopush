@@ -23,6 +23,7 @@ import (
 	"github.com/golang/glog"
 	"github.com/funny/link"
 	"github.com/oikomi/gopush/base"
+	"github.com/oikomi/gopush/common"
 	"github.com/oikomi/gopush/protocol"
 	"github.com/oikomi/gopush/storage"
 )
@@ -81,6 +82,10 @@ func (self *MsgServer)scanDeadSession() {
 					if (s.State).(*base.SessionState).Alive == false {
 						glog.Info("delete" + id)
 						delete(self.sessions, id)
+						err := common.DelSessionFromCID(self.redisStore, id)
+						if err != nil {
+							glog.Warningf("delete ID : %s failed!!", id)
+						}
 					} else {
 						s.State.(*base.SessionState).Alive = false
 					}

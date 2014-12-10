@@ -56,3 +56,14 @@ func GetSessionFromCID(redisStore  *storage.RedisStore, ID string) (*storage.Sto
 	return session, nil
 }
 
+func DelSessionFromCID(redisStore  *storage.RedisStore, ID string) error {
+	err := redisStore.Delete(ID)
+	
+	if err != nil {
+		glog.Warningf("no ID : %s", ID)
+		return err
+	}
+
+	return nil
+}
+
