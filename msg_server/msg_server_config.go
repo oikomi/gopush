@@ -23,11 +23,13 @@ import (
 )
 
 type MsgServerConfig struct {
-	configfile string
-	LocalIP string
-	TransportProtocols string
-	Listen string
-	LogFile    string
+	configfile               string
+	LocalIP                  string
+	TransportProtocols       string
+	Listen                   string
+	LogFile                  string
+	ScanDeadSessionTimeout   time.Duration
+	Expire                   time.Duration
 	SessionManagerServerList []string
 	Redis struct { 
 		Addr string 

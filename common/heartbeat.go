@@ -16,24 +16,29 @@
 package common
 
 import (
-	"net"
 	"sync"
 	"time"
+	"github.com/golang/glog"
+	"github.com/oikomi/gopush/protocol"
+	"github.com/funny/link"
 )
 
 type HeartBeat struct {
 	name       string
-	conn       net.Conn
+	session    *link.Session
 	mu         sync.Mutex
 	timeout    time.Duration
+	expire     time.Duration
 	fails      uint64
 	threshold  uint64
 }
 
-func NewHeartBeat(name string, conn net.Conn, t time.Duration, limit uint64) *HeartBeat {
+func NewHeartBeat(name string, session *link.Session, timeout time.Duration, expire time.Duration, limit uint64) *HeartBeat {
 	return &HeartBeat {
 		name      : name,
-		conn      : conn,
+		session   : session,
+		timeout   : timeout,
+		expire    : expire,
 		threshold : limit,
 	}
 }
@@ -50,13 +55,24 @@ func (self *HeartBeat) ChangeThreshold(thres uint64) {
 	self.threshold = thres
 }
 
-func (self *HeartBeat) Beat(expire time.Duration) {
-	ttl := time.After(expire)
-	out := time.Tick(self.timeout)
+func (self *HeartBeat) Beat() {
+	timer := time.NewTicker(self.timeout * time.Second)
+	ttl := time.After(self.expire * time.Second)
 	for {
 		select {
-		case <-out:
-			self.conn.Write([]byte("ok"))
+		case <-timer.C:
+			go func() {
+				cmd := protocol.NewCmd()
+				cmd.CmdName = protocol.SEND_PING_CMD
+				cmd.Args = append(cmd.Args, protocol.PING)
+				
+				err := self.session.Send(link.JSON {
+					cmd,
+				})
+				if err != nil {
+					glog.Error(err.Error())
+				}
+			}()
 		case <-ttl:
 			break
 		}

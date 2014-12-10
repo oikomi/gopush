@@ -20,6 +20,7 @@ import (
 	"strconv"
 	"flag"
 	"github.com/funny/link"
+	"github.com/oikomi/gopush/base"
 	"github.com/oikomi/gopush/protocol"
 	"github.com/oikomi/gopush/common"
 )
@@ -39,6 +40,17 @@ func NewProtoProc(msgServer *MsgServer) *ProtoProc {
 	}
 	
 	return pp
+}
+
+func (self *ProtoProc)procPing(cmd protocol.Cmd, session *link.Session) error {
+	glog.Info("procPing")
+	var err error
+	cid := session.State.(*base.SessionState).ClientID
+	self.msgServer.scanSessionMutex.Lock()
+	defer self.msgServer.scanSessionMutex.Unlock()
+	self.msgServer.sessions[cid].State.(*base.SessionState).Alive = true
+	
+	return err
 }
 
 func (self *ProtoProc)procClientID(cmd protocol.Cmd, session *link.Session) error {
@@ -61,7 +73,7 @@ func (self *ProtoProc)procClientID(cmd protocol.Cmd, session *link.Session) erro
 		return err
 	}
 	self.msgServer.sessions[string(cmd.Args[0])] = session
-	self.msgServer.heartBeatSessions[string(cmd.Args[0])] = session
+	self.msgServer.sessions[string(cmd.Args[0])].State = base.NewSessionState(true, string(cmd.Args[0]))
 	
 	return err
 }

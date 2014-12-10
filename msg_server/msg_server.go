@@ -87,6 +87,7 @@ func main() {
 	glog.Info("server start:", ms.server.Listener().Addr().String())
 	
 	ms.createChannels()
+	go ms.scanDeadSession()
 
 	ms.server.AcceptLoop(func(session *link.Session) {
 		glog.Info("client ", session.Conn().RemoteAddr().String(), " | in")

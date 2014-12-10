@@ -55,3 +55,4 @@ func GetSessionFromCID(redisStore  *storage.RedisStore, ID string) (*storage.Sto
 	
 	return session, nil
 }
+

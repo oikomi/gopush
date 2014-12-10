@@ -21,6 +21,7 @@ import (
 	"github.com/funny/link"
 	"github.com/golang/glog"
 	"github.com/oikomi/gopush/protocol"
+	"github.com/oikomi/gopush/common"
 )
 
 var InputConfFile = flag.String("conf_file", "client.json", "input conf file name")   
@@ -28,6 +29,11 @@ var InputConfFile = flag.String("conf_file", "client.json", "input conf file nam
 func init() {
 	flag.Set("alsologtostderr", "true")
 	flag.Set("log_dir", "false")
+}
+
+func heartBeat(cfg Config, msgServerClient *link.Session) {
+	hb := common.NewHeartBeat("client", msgServerClient, cfg.HeartBeatTime, cfg.Expire, 10)
+	hb.Beat()
 }
 
 func main() {
@@ -75,6 +81,8 @@ func main() {
 	if err != nil {
 		glog.Error(err.Error())
 	}
+	
+	go heartBeat(cfg, msgServerClient)
 	
 	cmd = protocol.NewCmd()
 	

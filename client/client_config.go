@@ -17,14 +17,17 @@ package main
 
 import (
 	"os"
+	"time"
 	"encoding/json"
 	"log"
 )
 
 type Config struct {
 	TransportProtocols string
-	LogFile    string
-	GatewayServer string
+	LogFile            string
+	GatewayServer      string
+	HeartBeatTime      time.Duration
+	Expire             time.Duration
 }
 
 func LoadConfig(configfile string) (cfg Config, err error) {

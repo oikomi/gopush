@@ -18,6 +18,7 @@ package main
 import (
 	"time"
 	"flag"
+	"sync"
 	"encoding/json"
 	"github.com/golang/glog"
 	"github.com/funny/link"
@@ -34,19 +35,19 @@ func init() {
 type MsgServer struct {
 	cfg               *MsgServerConfig
 	sessions          base.SessionMap
-	heartBeatSessions base.HeartBeatSessionMap
 	channels          base.ChannelMap
 	server            *link.Server
 	redisStore        *storage.RedisStore
+	scanSessionMutex  sync.Mutex
 }
 
 func NewMsgServer(cfg *MsgServerConfig) *MsgServer {
 	return &MsgServer {
-		cfg        : cfg,
-		sessions   : make(base.SessionMap),
-		channels   : make(base.ChannelMap),
-		server     : new(link.Server),
-		redisStore : storage.NewRedisStore(&storage.RedisStoreOptions {
+		cfg                : cfg,
+		sessions           : make(base.SessionMap),
+		channels           : make(base.ChannelMap),
+		server             : new(link.Server),
+		redisStore         : storage.NewRedisStore(&storage.RedisStoreOptions {
 			Network        : "tcp",
 			Address        : cfg.Redis.Port,
 			ConnectTimeout : time.Duration(cfg.Redis.ConnectTimeout)*time.Millisecond,
@@ -65,6 +66,29 @@ func (self *MsgServer)createChannels() {
 	}
 }
 
+func (self *MsgServer)scanDeadSession() {
+	timer := time.NewTicker(self.cfg.ScanDeadSessionTimeout * time.Second)
+	ttl := time.After(self.cfg.Expire * time.Second)
+	for {
+		select {
+		case <-timer.C:
+			go func() {
+				for id, s := range self.sessions {
+					self.scanSessionMutex.Lock()
+					defer self.scanSessionMutex.Unlock()
+					if (s.State).(*base.SessionState).Alive == false {
+						glog.Info("delete" + id)
+						delete(self.sessions, id)
+					}
+				}
+				
+			}()
+		case <-ttl:
+			break
+		}
+	}
+}
+
 func (self *MsgServer)parseProtocol(cmd []byte, session *link.Session) error {
 	var c protocol.Cmd
 	
@@ -79,6 +103,8 @@ func (self *MsgServer)parseProtocol(cmd []byte, session *link.Session) error {
 	glog.Info(c.CmdName)
 
 	switch c.CmdName {
+		case protocol.SEND_PING_CMD:
+			pp.procPing(c, session)
 		case protocol.SUBSCRIBE_CHANNEL_CMD:
 			pp.procSubscribeChannel(c, session)
 		case protocol.SEND_CLIENT_ID_CMD:

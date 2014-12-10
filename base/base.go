@@ -22,12 +22,23 @@ import (
 
 type ChannelMap map[string]*link.Channel
 type SessionMap map[string]*link.Session
-type HeartBeatSessionMap map[string]*link.Session
 
 var ChannleList []string
 
 func init() {
 	ChannleList = []string{protocol.SYSCTRL_CLIENT_STATUS, protocol.SYSCTRL_SEND}
+}
+
+type SessionState struct {
+	ClientID string
+	Alive    bool
+}
+
+func NewSessionState(alive bool, cid string) *SessionState {
+	return &SessionState {
+		ClientID : cid,
+		Alive    : alive,
+	}
 }
 
 type Config interface {

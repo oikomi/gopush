@@ -16,6 +16,7 @@
 package protocol
 
 const (
+	SEND_PING_CMD           = "SEND_PING_ID"
 	SEND_CLIENT_ID_CMD      = "SEND_CLIENT_ID"
 	SUBSCRIBE_CHANNEL_CMD   = "SUBSCRIBE_CHANNEL"
 	SEND_MESSAGE_P2P_CMD    = "SEND_MESSAGE_P2P"
@@ -23,6 +24,11 @@ const (
 	ROUTE_MESSAGE_P2P_CMD   = "ROUTE_MESSAGE_P2P"
 	CREATE_TOPIC_CMD        = "CREATE_TOPIC"
 )
+
+const (
+	PING  = "PING"
+)
+
 
 type Cmd struct {
 	CmdName string
