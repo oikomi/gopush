@@ -147,7 +147,17 @@ func (self *ProtoProc)procRouteMessageP2P(cmd protocol.Cmd, session *link.Sessio
 
 
 func (self *ProtoProc)procSendMessageTopic(cmd protocol.Cmd, session *link.Session) error {
+	glog.Info("procSendMessageTopic")
+	topicName := string(cmd.Args[0])
+	send2Msg := string(cmd.Args[1])
+	glog.Info(send2Msg)
 	
+	if self.msgServer.topics[topicName] != nil {
+		glog.Info("topic in local server")
+	} else {
+		
+	
+	}
 	
 	return nil
 }
