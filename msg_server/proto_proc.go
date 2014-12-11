@@ -161,5 +161,7 @@ func (self *ProtoProc)procCreateTopic(cmd protocol.Cmd, session *link.Session) {
 }
 
 func (self *ProtoProc)procJoinTopic(cmd protocol.Cmd, session *link.Session) {
-	
+	glog.Info("procJoinTopic")
+	topicName := string(cmd.Args[0])
+	self.msgServer.topics[topicName].Channel.Join(session, nil)
 }
