@@ -37,7 +37,7 @@ type MsgServer struct {
 	cfg               *MsgServerConfig
 	sessions          base.SessionMap
 	channels          base.ChannelMap
-	topics            TopicMap
+	topics            protocol.TopicMap
 	server            *link.Server
 	redisStore        *storage.RedisStore
 	scanSessionMutex  sync.Mutex
@@ -48,7 +48,7 @@ func NewMsgServer(cfg *MsgServerConfig) *MsgServer {
 		cfg                : cfg,
 		sessions           : make(base.SessionMap),
 		channels           : make(base.ChannelMap),
-		topics             : make(TopicMap),
+		topics             : make(protocol.TopicMap),
 		server             : new(link.Server),
 		redisStore         : storage.NewRedisStore(&storage.RedisStoreOptions {
 			Network        : "tcp",

@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package protocol
 
 import (
 	"github.com/funny/link"
@@ -25,7 +25,6 @@ type Topic struct {
 	TopicName   string
 	Channel     *link.Channel
 	TA          *TopicAttribute
-
 }
 
 func NewTopic(topicName string, CreaterID string, CreaterSession *link.Session) *Topic {
