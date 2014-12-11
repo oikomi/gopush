@@ -37,6 +37,7 @@ type MsgServer struct {
 	cfg               *MsgServerConfig
 	sessions          base.SessionMap
 	channels          base.ChannelMap
+	topics            TopicMap
 	server            *link.Server
 	redisStore        *storage.RedisStore
 	scanSessionMutex  sync.Mutex
@@ -47,6 +48,7 @@ func NewMsgServer(cfg *MsgServerConfig) *MsgServer {
 		cfg                : cfg,
 		sessions           : make(base.SessionMap),
 		channels           : make(base.ChannelMap),
+		topics             : make(TopicMap),
 		server             : new(link.Server),
 		redisStore         : storage.NewRedisStore(&storage.RedisStoreOptions {
 			Network        : "tcp",
@@ -136,6 +138,8 @@ func (self *MsgServer)parseProtocol(cmd []byte, session *link.Session) error {
 			}
 		case protocol.CREATE_TOPIC_CMD:
 			pp.procCreateTopic(c, session)
+		case protocol.JOIN_TOPIC_CMD:
+			pp.procJoinTopic(c, session)
 		}
 
 	return err

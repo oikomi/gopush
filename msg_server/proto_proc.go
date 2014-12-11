@@ -157,4 +157,9 @@ func (self *ProtoProc)procCreateTopic(cmd protocol.Cmd, session *link.Session) {
 	topic := NewTopic(topicName, (session.State).(*base.SessionState).ClientID, session)
 	glog.Info(topic)
 	topic.Channel = link.NewChannel(self.msgServer.server.Protocol())
+	self.msgServer.topics[topicName] = topic
+}
+
+func (self *ProtoProc)procJoinTopic(cmd protocol.Cmd, session *link.Session) {
+	
 }

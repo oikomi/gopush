@@ -19,6 +19,8 @@ import (
 	"github.com/funny/link"
 )
 
+type TopicMap   map[string]*Topic
+
 type Topic struct {
 	TopicName   string
 	Channel     *link.Channel
@@ -37,7 +39,6 @@ func NewTopic(topicName string, CreaterID string, CreaterSession *link.Session) 
 type TopicAttribute struct {
 	CreaterID          string
 	CreaterSession     *link.Session
-	
 }
 
 func NewTopicAttribute(CreaterID string, CreaterSession *link.Session) *TopicAttribute {
@@ -45,5 +46,4 @@ func NewTopicAttribute(CreaterID string, CreaterSession *link.Session) *TopicAtt
 		CreaterID      : CreaterID,
 		CreaterSession : CreaterSession,
 	}
-
 }
