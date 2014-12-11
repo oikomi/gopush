@@ -26,7 +26,7 @@ type SessionMap map[string]*link.Session
 var ChannleList []string
 
 func init() {
-	ChannleList = []string{protocol.SYSCTRL_CLIENT_STATUS, protocol.SYSCTRL_Topic_SYNC, protocol.SYSCTRL_SEND}
+	ChannleList = []string{protocol.SYSCTRL_CLIENT_STATUS, protocol.SYSCTRL_TOPIC_SYNC, protocol.SYSCTRL_SEND}
 }
 
 type SessionState struct {

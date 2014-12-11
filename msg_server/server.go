@@ -142,7 +142,7 @@ func (self *MsgServer)parseProtocol(cmd []byte, session *link.Session) error {
 			pp.procCreateTopic(c, session)
 		case protocol.JOIN_TOPIC_CMD:
 			pp.procJoinTopic(c, session)
-		case protocol.SEND_MESSAGE_Topic_CMD:
+		case protocol.SEND_MESSAGE_TOPIC_CMD:
 			pp.procSendMessageTopic(c, session)
 			if err != nil {
 				glog.Error("error:", err)

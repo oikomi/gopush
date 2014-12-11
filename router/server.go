@@ -29,6 +29,7 @@ type Router struct {
 	cfg                 *RouterConfig
 	msgServerClientMap  map[string]*link.Session
 	redisStore          *storage.RedisStore
+	topicServerMap      map[string]string
 	readMutex           sync.Mutex
 }   
 
@@ -45,6 +46,7 @@ func NewRouter(cfg *RouterConfig) *Router {
 					Database :  1,
 					KeyPrefix : "push",
 		}),
+		topicServerMap     : make(map[string]string),
 	}
 }
 
@@ -71,6 +73,16 @@ func (self *Router)handleMsgServerClient(msc *link.Session) {
 		switch c.CmdName {
 			case protocol.SEND_MESSAGE_P2P_CMD:
 				err := pp.procSendMsgP2P(c, msc)
+				if err != nil {
+					glog.Warning(err.Error())
+				}
+			case protocol.CREATE_TOPIC_CMD:
+				err := pp.procCreateTopic(c, msc)
+				if err != nil {
+					glog.Warning(err.Error())
+				}
+			case protocol.SEND_MESSAGE_TOPIC_CMD:
+				err := pp.procSendMsgTopic(c, msc)
 				if err != nil {
 					glog.Warning(err.Error())
 				}
@@ -103,7 +115,7 @@ func (self *Router)subscribeChannels() error {
 		cmd = protocol.NewCmd()
 		
 		cmd.CmdName = protocol.SUBSCRIBE_CHANNEL_CMD
-		cmd.Args = append(cmd.Args, protocol.SYSCTRL_Topic_SYNC)
+		cmd.Args = append(cmd.Args, protocol.SYSCTRL_TOPIC_SYNC)
 		
 		err = msgServerClient.Send(link.JSON {
 			cmd,

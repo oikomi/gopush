@@ -67,4 +67,21 @@ func (self *ProtoProc)procSendMsgP2P(cmd protocol.Cmd, session *link.Session) er
 	return nil
 }
 
+func (self *ProtoProc)procCreateTopic(cmd protocol.Cmd, session *link.Session) error {
+	glog.Info("procCreateTopic")
+	topicName := string(cmd.Args[0])
+	serverAddr := string(cmd.Args[1])
+	self.Router.topicServerMap[topicName] = serverAddr
+	
+	return nil
+}
+
+
+func (self *ProtoProc)procSendMsgTopic(cmd protocol.Cmd, session *link.Session) error {
+	glog.Info("procSendMsgTopic")
+	//var err error
+	
+	return nil
+}
+
 

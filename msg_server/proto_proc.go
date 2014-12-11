@@ -106,11 +106,10 @@ func (self *ProtoProc)procSendMessageP2P(cmd protocol.Cmd, session *link.Session
 			err = self.msgServer.channels[protocol.SYSCTRL_SEND].Broadcast(link.JSON {
 				cmd,
 			})
-		}
-
-		if err != nil {
-			glog.Error(err.Error())
-			return err
+			if err != nil {
+				glog.Error(err.Error())
+				return err
+			}
 		}
 	}
 	
@@ -148,6 +147,7 @@ func (self *ProtoProc)procRouteMessageP2P(cmd protocol.Cmd, session *link.Sessio
 
 func (self *ProtoProc)procSendMessageTopic(cmd protocol.Cmd, session *link.Session) error {
 	glog.Info("procSendMessageTopic")
+	var err error
 	topicName := string(cmd.Args[0])
 	send2Msg := string(cmd.Args[1])
 	glog.Info(send2Msg)
@@ -155,8 +155,15 @@ func (self *ProtoProc)procSendMessageTopic(cmd protocol.Cmd, session *link.Sessi
 	if self.msgServer.topics[topicName] != nil {
 		glog.Info("topic in local server")
 	} else {
-		
-	
+		if self.msgServer.channels[protocol.SYSCTRL_TOPIC_SYNC] != nil {
+			err = self.msgServer.channels[protocol.SYSCTRL_TOPIC_SYNC].Broadcast(link.JSON {
+				cmd,
+			})
+			if err != nil {
+				glog.Error(err.Error())
+				return err
+			}
+		}
 	}
 	
 	return nil
@@ -175,11 +182,22 @@ func (self *ProtoProc)procSubscribeChannel(cmd protocol.Cmd, session *link.Sessi
 
 func (self *ProtoProc)procCreateTopic(cmd protocol.Cmd, session *link.Session) {
 	glog.Info("procCreateTopic")
+	var err error
 	topicName := string(cmd.Args[0])
 	topic := protocol.NewTopic(topicName, (session.State).(*base.SessionState).ClientID, session)
 	glog.Info(topic)
 	topic.Channel = link.NewChannel(self.msgServer.server.Protocol())
 	self.msgServer.topics[topicName] = topic
+	
+	cmd.Args = append(cmd.Args, self.msgServer.cfg.LocalIP)
+	if self.msgServer.channels[protocol.SYSCTRL_TOPIC_SYNC] != nil {
+		err = self.msgServer.channels[protocol.SYSCTRL_TOPIC_SYNC].Broadcast(link.JSON {
+			cmd,
+		})
+		if err != nil {
+			glog.Error(err.Error())
+		}
+	}
 }
 
 func (self *ProtoProc)procJoinTopic(cmd protocol.Cmd, session *link.Session) {

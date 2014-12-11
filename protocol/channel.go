@@ -24,6 +24,6 @@ type SessionMap map[string]*link.Session
 
 const (
 	SYSCTRL_CLIENT_STATUS = "/sysctrl/client-status"
-	SYSCTRL_Topic_SYNC    = "/sysctrl/topic-sync"
+	SYSCTRL_TOPIC_SYNC    = "/sysctrl/topic-sync"
 	SYSCTRL_SEND          = "/sysctrl/send"
 )
