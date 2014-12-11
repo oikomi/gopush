@@ -74,7 +74,7 @@ func (self *MsgServer)scanDeadSession() {
 	for {
 		select {
 		case <-timer.C:
-			glog.Info("scanDeadSession timeout")
+			//glog.Info("scanDeadSession timeout")
 			go func() {
 				for id, s := range self.sessions {
 					self.scanSessionMutex.Lock()

@@ -15,14 +15,35 @@
 
 package main
 
+import (
+	"github.com/funny/link"
+)
 
 type Topic struct {
 	TopicName   string
+	Channel     *link.Channel
+	TA          *TopicAttribute
 
 }
 
-func NewTopic(topicName string) *Topic {
+func NewTopic(topicName string, CreaterID string, CreaterSession *link.Session) *Topic {
 	return &Topic {
 		TopicName : topicName,
+		Channel   : new(link.Channel),
+		TA        : NewTopicAttribute(CreaterID, CreaterSession),
 	}
+}
+
+type TopicAttribute struct {
+	CreaterID          string
+	CreaterSession     *link.Session
+	
+}
+
+func NewTopicAttribute(CreaterID string, CreaterSession *link.Session) *TopicAttribute {
+	return &TopicAttribute {
+		CreaterID      : CreaterID,
+		CreaterSession : CreaterSession,
+	}
+
 }
