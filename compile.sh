@@ -1,4 +1,9 @@
 #!/bin/sh
+
+cd client
+go build
+cd ..
+
 cd gateway
 go build
 cd ..
