@@ -145,10 +145,22 @@ func (self *ProtoProc)procRouteMessageP2P(cmd protocol.Cmd, session *link.Sessio
 	return nil
 }
 
+
+func (self *ProtoProc)procSendMessageTopic(cmd protocol.Cmd, session *link.Session) error {
+	
+	
+	return nil
+}
+
 func (self *ProtoProc)procSubscribeChannel(cmd protocol.Cmd, session *link.Session) {
 	glog.Info("procSubscribeChannel")
 	channelName := string(cmd.Args[0])
-	self.msgServer.channels[channelName].Join(session, nil)
+	glog.Info(channelName)
+	if self.msgServer.channels[channelName] != nil {
+		self.msgServer.channels[channelName].Join(session, nil)
+	} else {
+		glog.Warning(channelName + " is not exist")
+	}
 }
 
 func (self *ProtoProc)procCreateTopic(cmd protocol.Cmd, session *link.Session) {

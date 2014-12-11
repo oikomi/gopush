@@ -70,6 +70,7 @@ func main() {
 		panic(err)
 	}
 	
+	glog.Info("test.. send id...")
 	cmd := protocol.NewCmd()
 	
 	cmd.CmdName = protocol.SEND_CLIENT_ID_CMD
@@ -84,6 +85,7 @@ func main() {
 	
 	go heartBeat(cfg, msgServerClient)
 	
+	glog.Info("test.. send p2p msg...")
 	cmd = protocol.NewCmd()
 	
 	cmd.CmdName = protocol.SEND_MESSAGE_P2P_CMD
@@ -96,6 +98,47 @@ func main() {
 	cmd.Args = append(cmd.Args, input)
 	
 	fmt.Println("input msg :")
+	if _, err = fmt.Scanf("%s\n", &input); err != nil {
+		glog.Error(err.Error())
+	}
+	
+	cmd.Args = append(cmd.Args, input)
+	
+	err = msgServerClient.Send(link.JSON {
+		cmd,
+	})
+	if err != nil {
+		glog.Error(err.Error())
+	}
+	
+	glog.Info("test.. send create topic...")
+	
+	cmd = protocol.NewCmd()
+	
+	cmd.CmdName = protocol.CREATE_TOPIC_CMD
+
+	fmt.Println("input topic name :")
+	if _, err = fmt.Scanf("%s\n", &input); err != nil {
+		glog.Error(err.Error())
+	}
+	
+	cmd.Args = append(cmd.Args, input)
+	
+	err = msgServerClient.Send(link.JSON {
+		cmd,
+	})
+	if err != nil {
+		glog.Error(err.Error())
+	}
+	
+	
+	glog.Info("test.. send join topic...")
+	
+	cmd = protocol.NewCmd()
+	
+	cmd.CmdName = protocol.JOIN_TOPIC_CMD
+
+	fmt.Println("input topic name :")
 	if _, err = fmt.Scanf("%s\n", &input); err != nil {
 		glog.Error(err.Error())
 	}

@@ -63,7 +63,9 @@ func NewMsgServer(cfg *MsgServerConfig) *MsgServer {
 }
 
 func (self *MsgServer)createChannels() {
+	glog.Info("createChannels")
 	for _, c := range base.ChannleList {
+		glog.Info(c)
 		channel := link.NewChannel(self.server.Protocol())
 		self.channels[c] = channel
 	}
@@ -140,6 +142,12 @@ func (self *MsgServer)parseProtocol(cmd []byte, session *link.Session) error {
 			pp.procCreateTopic(c, session)
 		case protocol.JOIN_TOPIC_CMD:
 			pp.procJoinTopic(c, session)
+		case protocol.SEND_MESSAGE_Topic_CMD:
+			pp.procSendMessageTopic(c, session)
+			if err != nil {
+				glog.Error("error:", err)
+				return err
+			}
 		}
 
 	return err

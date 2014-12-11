@@ -100,6 +100,19 @@ func (self *Router)subscribeChannels() error {
 			return err
 		}
 		
+		cmd = protocol.NewCmd()
+		
+		cmd.CmdName = protocol.SUBSCRIBE_CHANNEL_CMD
+		cmd.Args = append(cmd.Args, protocol.SYSCTRL_Topic_SYNC)
+		
+		err = msgServerClient.Send(link.JSON {
+			cmd,
+		})
+		if err != nil {
+			glog.Error(err.Error())
+			return err
+		}
+		
 		self.msgServerClientMap[ms] = msgServerClient
 	}
 
