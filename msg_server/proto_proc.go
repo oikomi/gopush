@@ -54,7 +54,7 @@ func (self *ProtoProc)procClientID(cmd protocol.Cmd, session *link.Session) erro
 	glog.Info("procClientID")
 	var err error
 	sessionStore := NewSessionStore()
-	sessionStore.ClientID = string(cmd.Args[0])
+	sessionStore.ClientID = cmd.GetArgs()[0]
 	sessionStore.ClientAddr = session.Conn().RemoteAddr().String()
 	sessionStore.MsgServerAddr = self.msgServer.cfg.LocalIP
 	sessionStore.ID = strconv.FormatUint(session.Id(), 10)
@@ -69,8 +69,8 @@ func (self *ProtoProc)procClientID(cmd protocol.Cmd, session *link.Session) erro
 		}
 	}
 
-	self.msgServer.sessions[string(cmd.Args[0])] = session
-	self.msgServer.sessions[string(cmd.Args[0])].State = base.NewSessionState(true, string(cmd.Args[0]))
+	self.msgServer.sessions[cmd.GetArgs()[0]] = session
+	self.msgServer.sessions[cmd.GetArgs()[0]].State = base.NewSessionState(true, cmd.GetArgs()[0])
 	
 	return nil
 }
@@ -78,8 +78,8 @@ func (self *ProtoProc)procClientID(cmd protocol.Cmd, session *link.Session) erro
 func (self *ProtoProc)procSendMessageP2P(cmd protocol.Cmd, session *link.Session) error {
 	glog.Info("procSendMessageP2P")
 	var err error
-	send2ID := string(cmd.Args[0])
-	send2Msg := string(cmd.Args[1])
+	send2ID := cmd.GetArgs()[0]
+	send2Msg := cmd.GetArgs()[1]
 	store_session, err := common.GetSessionFromCID(self.msgServer.redisStore, send2ID)
 	if err != nil {
 		glog.Warningf("no ID : %s", send2ID)
@@ -89,7 +89,7 @@ func (self *ProtoProc)procSendMessageP2P(cmd protocol.Cmd, session *link.Session
 	
 	if store_session.MsgServerAddr == self.msgServer.cfg.LocalIP {
 		glog.Info("in the same server")
-		resp := protocol.NewCmd()
+		resp := protocol.NewCmdSimple()
 		resp.CmdName = protocol.RESP_MESSAGE_P2P_CMD
 		resp.Args = append(resp.Args, send2Msg)
 		
@@ -119,8 +119,8 @@ func (self *ProtoProc)procSendMessageP2P(cmd protocol.Cmd, session *link.Session
 func (self *ProtoProc)procRouteMessageP2P(cmd protocol.Cmd, session *link.Session) error {
 	glog.Info("procRouteMessageP2P")
 	var err error
-	send2ID := string(cmd.Args[0])
-	send2Msg := string(cmd.Args[1])
+	send2ID := cmd.GetArgs()[0]
+	send2Msg := cmd.GetArgs()[1]
 	_, err = common.GetSessionFromCID(self.msgServer.redisStore, send2ID)
 	if err != nil {
 		glog.Warningf("no ID : %s", send2ID)
@@ -128,7 +128,7 @@ func (self *ProtoProc)procRouteMessageP2P(cmd protocol.Cmd, session *link.Sessio
 		return err
 	}
 
-	resp := protocol.NewCmd()
+	resp := protocol.NewCmdSimple()
 	resp.CmdName = protocol.RESP_MESSAGE_P2P_CMD
 	resp.Args = append(resp.Args, send2Msg)
 	
@@ -148,21 +148,18 @@ func (self *ProtoProc)procRouteMessageP2P(cmd protocol.Cmd, session *link.Sessio
 func (self *ProtoProc)procSendMessageTopic(cmd protocol.Cmd, session *link.Session) error {
 	glog.Info("procSendMessageTopic")
 	var err error
-	topicName := string(cmd.Args[0])
-	send2Msg := string(cmd.Args[1])
+	topicName := cmd.GetArgs()[0]
+	send2Msg := cmd.GetArgs()[1]
 	glog.Info(send2Msg)
-	
-	if self.msgServer.topics[topicName] != nil {
-		glog.Info("topic in local server")
-	} else {
-		if self.msgServer.channels[protocol.SYSCTRL_TOPIC_SYNC] != nil {
-			err = self.msgServer.channels[protocol.SYSCTRL_TOPIC_SYNC].Broadcast(link.JSON {
-				cmd,
-			})
-			if err != nil {
-				glog.Error(err.Error())
-				return err
-			}
+	glog.Info(topicName)
+
+	if self.msgServer.channels[protocol.SYSCTRL_TOPIC_SYNC] != nil {
+		err = self.msgServer.channels[protocol.SYSCTRL_TOPIC_SYNC].Broadcast(link.JSON {
+			cmd,
+		})
+		if err != nil {
+			glog.Error(err.Error())
+			return err
 		}
 	}
 	
@@ -171,7 +168,7 @@ func (self *ProtoProc)procSendMessageTopic(cmd protocol.Cmd, session *link.Sessi
 
 func (self *ProtoProc)procSubscribeChannel(cmd protocol.Cmd, session *link.Session) {
 	glog.Info("procSubscribeChannel")
-	channelName := string(cmd.Args[0])
+	channelName := cmd.GetArgs()[0]
 	glog.Info(channelName)
 	if self.msgServer.channels[channelName] != nil {
 		self.msgServer.channels[channelName].Join(session, nil)
@@ -183,16 +180,23 @@ func (self *ProtoProc)procSubscribeChannel(cmd protocol.Cmd, session *link.Sessi
 func (self *ProtoProc)procCreateTopic(cmd protocol.Cmd, session *link.Session) {
 	glog.Info("procCreateTopic")
 	var err error
-	topicName := string(cmd.Args[0])
+	topicName := cmd.GetArgs()[0]
 	topic := protocol.NewTopic(topicName, (session.State).(*base.SessionState).ClientID, session)
 	glog.Info(topic)
 	topic.Channel = link.NewChannel(self.msgServer.server.Protocol())
+	topic.ClientIdList = append(topic.ClientIdList, (session.State).(*base.SessionState).ClientID)
 	self.msgServer.topics[topicName] = topic
 	
-	cmd.Args = append(cmd.Args, self.msgServer.cfg.LocalIP)
+	cCmd := protocol.NewCmdInternal()
+	cCmd.CmdName = protocol.CREATE_TOPIC_CMD
+	cCmd.Args = append(cCmd.Args, topicName)
+	cCmd.AnyData = self.msgServer.cfg.LocalIP
+	
+	glog.Info(cCmd)
+	
 	if self.msgServer.channels[protocol.SYSCTRL_TOPIC_SYNC] != nil {
 		err = self.msgServer.channels[protocol.SYSCTRL_TOPIC_SYNC].Broadcast(link.JSON {
-			cmd,
+			cCmd,
 		})
 		if err != nil {
 			glog.Error(err.Error())
@@ -202,6 +206,24 @@ func (self *ProtoProc)procCreateTopic(cmd protocol.Cmd, session *link.Session) {
 
 func (self *ProtoProc)procJoinTopic(cmd protocol.Cmd, session *link.Session) {
 	glog.Info("procJoinTopic")
-	topicName := string(cmd.Args[0])
-	self.msgServer.topics[topicName].Channel.Join(session, nil)
+	var err error
+	topicName := cmd.GetArgs()[0]
+	
+	joinCmd := protocol.NewCmdInternal()
+	joinCmd.CmdName = protocol.JOIN_TOPIC_CMD
+	joinCmd.Args = append(joinCmd.Args, topicName)
+	joinCmd.AnyData = session
+
+	if self.msgServer.topics[topicName] != nil {
+		self.msgServer.topics[topicName].Channel.Join(session, nil)
+	} else {
+		if self.msgServer.channels[protocol.SYSCTRL_TOPIC_SYNC] != nil {
+			err = self.msgServer.channels[protocol.SYSCTRL_TOPIC_SYNC].Broadcast(link.JSON {
+				joinCmd,
+			})
+			if err != nil {
+				glog.Error(err.Error())
+			}
+		}
+	}
 }

@@ -103,7 +103,7 @@ func (self *MsgServer)scanDeadSession() {
 }
 
 func (self *MsgServer)parseProtocol(cmd []byte, session *link.Session) error {
-	var c protocol.Cmd
+	var c protocol.CmdSimple
 	
 	err := json.Unmarshal(cmd, &c)
 	if err != nil {

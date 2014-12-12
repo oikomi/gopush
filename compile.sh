@@ -1,7 +1,7 @@
 #!/bin/sh
 
 cd client
-go build
+./client.sh
 cd ..
 
 cd gateway

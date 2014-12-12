@@ -74,7 +74,7 @@ func (self *SessionManager)subscribeChannels(redisStore *storage.RedisStore) err
 			glog.Error(err.Error())
 			return err
 		}
-		cmd := protocol.NewCmd()
+		cmd := protocol.NewCmdSimple()
 		
 		cmd.CmdName = protocol.SUBSCRIBE_CHANNEL_CMD
 		cmd.Args = append(cmd.Args, protocol.SYSCTRL_CLIENT_STATUS)

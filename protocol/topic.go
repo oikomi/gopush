@@ -22,16 +22,18 @@ import (
 type TopicMap   map[string]*Topic
 
 type Topic struct {
-	TopicName   string
-	Channel     *link.Channel
-	TA          *TopicAttribute
+	TopicName     string
+	Channel       *link.Channel
+	TA            *TopicAttribute
+	ClientIdList  []string
 }
 
 func NewTopic(topicName string, CreaterID string, CreaterSession *link.Session) *Topic {
 	return &Topic {
-		TopicName : topicName,
-		Channel   : new(link.Channel),
-		TA        : NewTopicAttribute(CreaterID, CreaterSession),
+		TopicName    : topicName,
+		Channel      : new(link.Channel),
+		TA           : NewTopicAttribute(CreaterID, CreaterSession),
+		ClientIdList : make([]string, 0),
 	}
 }
 

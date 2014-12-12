@@ -64,13 +64,13 @@ func (self *Router)connectMsgServer(ms string) (*link.Session, error) {
 func (self *Router)handleMsgServerClient(msc *link.Session) {
 	msc.ReadLoop(func(msg link.InBuffer) {
 		glog.Info("msg_server", msc.Conn().RemoteAddr().String()," say: ", string(msg.Get()))
-		var c protocol.Cmd
+		var c protocol.CmdInternal
 		pp := NewProtoProc(self)
 		err := json.Unmarshal(msg.Get(), &c)
 		if err != nil {
 			glog.Error("error:", err)
 		}
-		switch c.CmdName {
+		switch c.GetCmdName() {
 			case protocol.SEND_MESSAGE_P2P_CMD:
 				err := pp.procSendMsgP2P(c, msc)
 				if err != nil {
@@ -78,6 +78,11 @@ func (self *Router)handleMsgServerClient(msc *link.Session) {
 				}
 			case protocol.CREATE_TOPIC_CMD:
 				err := pp.procCreateTopic(c, msc)
+				if err != nil {
+					glog.Warning(err.Error())
+				}
+			case protocol.JOIN_TOPIC_CMD:
+				err := pp.procJoinTopic(c, msc)
 				if err != nil {
 					glog.Warning(err.Error())
 				}
@@ -99,7 +104,7 @@ func (self *Router)subscribeChannels() error {
 			glog.Error(err.Error())
 			return err
 		}
-		cmd := protocol.NewCmd()
+		cmd := protocol.NewCmdSimple()
 		
 		cmd.CmdName = protocol.SUBSCRIBE_CHANNEL_CMD
 		cmd.Args = append(cmd.Args, protocol.SYSCTRL_SEND)
@@ -112,7 +117,7 @@ func (self *Router)subscribeChannels() error {
 			return err
 		}
 		
-		cmd = protocol.NewCmd()
+		cmd = protocol.NewCmdSimple()
 		
 		cmd.CmdName = protocol.SUBSCRIBE_CHANNEL_CMD
 		cmd.Args = append(cmd.Args, protocol.SYSCTRL_TOPIC_SYNC)

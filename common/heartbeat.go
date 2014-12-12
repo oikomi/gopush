@@ -62,7 +62,7 @@ func (self *HeartBeat) Beat() {
 		select {
 		case <-timer.C:
 			go func() {
-				cmd := protocol.NewCmd()
+				cmd := protocol.NewCmdSimple()
 				cmd.CmdName = protocol.SEND_PING_CMD
 				cmd.Args = append(cmd.Args, protocol.PING)
 				

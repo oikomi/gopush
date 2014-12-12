@@ -41,8 +41,8 @@ func NewProtoProc(r *Router) *ProtoProc {
 func (self *ProtoProc)procSendMsgP2P(cmd protocol.Cmd, session *link.Session) error {
 	glog.Info("procSendMsgP2P")
 	var err error
-	send2ID := string(cmd.Args[0])
-	send2Msg := string(cmd.Args[1])
+	send2ID := cmd.GetArgs()[0]
+	send2Msg := cmd.GetArgs()[1]
 	glog.Info(send2Msg)
 	self.Router.readMutex.Lock()
 	defer self.Router.readMutex.Unlock()
@@ -54,7 +54,7 @@ func (self *ProtoProc)procSendMsgP2P(cmd protocol.Cmd, session *link.Session) er
 	}
 	glog.Info(store_session.MsgServerAddr)
 	
-	cmd.CmdName = protocol.ROUTE_MESSAGE_P2P_CMD
+	cmd.ChangeCmdName(protocol.ROUTE_MESSAGE_P2P_CMD)
 	
 	err = self.Router.msgServerClientMap[store_session.MsgServerAddr].Send(link.JSON {
 		cmd,
@@ -69,9 +69,31 @@ func (self *ProtoProc)procSendMsgP2P(cmd protocol.Cmd, session *link.Session) er
 
 func (self *ProtoProc)procCreateTopic(cmd protocol.Cmd, session *link.Session) error {
 	glog.Info("procCreateTopic")
-	topicName := string(cmd.Args[0])
-	serverAddr := string(cmd.Args[1])
+	topicName := cmd.GetArgs()[0]
+	serverAddr := cmd.GetAnyData().(string)
 	self.Router.topicServerMap[topicName] = serverAddr
+	
+	return nil
+}
+
+func (self *ProtoProc)procJoinTopic(cmd protocol.Cmd, session *link.Session) error {
+	glog.Info("procCreateTopic")
+	var err error
+	topicName := cmd.GetArgs()[0]
+	serverAddr := self.Router.topicServerMap[topicName]
+	
+	locateCmd := protocol.NewCmdSimple()
+	
+	locateCmd.CmdName = protocol.LOCATE_TOPIC_CMD
+	locateCmd.Args = append(locateCmd.Args, serverAddr)
+	
+	err = cmd.GetAnyData().(*link.Session).Send(link.JSON {
+		locateCmd,
+	})
+	if err != nil {
+		glog.Error(err.Error())
+		return err
+	}
 	
 	return nil
 }
@@ -80,6 +102,9 @@ func (self *ProtoProc)procCreateTopic(cmd protocol.Cmd, session *link.Session) e
 func (self *ProtoProc)procSendMsgTopic(cmd protocol.Cmd, session *link.Session) error {
 	glog.Info("procSendMsgTopic")
 	//var err error
+	//topicName := string(cmd.Args[0])
+	//send2Msg := string(cmd.Args[1])
+
 	
 	return nil
 }

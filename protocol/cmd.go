@@ -24,6 +24,7 @@ const (
 	ROUTE_MESSAGE_P2P_CMD   = "ROUTE_MESSAGE_P2P"
 	CREATE_TOPIC_CMD        = "CREATE_TOPIC"
 	JOIN_TOPIC_CMD          = "JOIN_TOPIC"
+	LOCATE_TOPIC_CMD        = "LOCATE_TOPIC"
 	SEND_MESSAGE_TOPIC_CMD  = "SEND_MESSAGE_TOPIC"
 	RESP_MESSAGE_TOPIC_CMD  = "RESP_MESSAGE_TOPIC"
 )
@@ -32,23 +33,91 @@ const (
 	PING  = "PING"
 )
 
+type Cmd interface {
+	GetCmdName() string
+	ChangeCmdName(newName string)
+	GetArgs() []string
+	AddArg(arg string)
+	ParseCmd(msglist []string)
+	GetAnyData() interface{}
+}
 
-type Cmd struct {
+
+type CmdSimple struct {
 	CmdName string
 	Args    []string
 }
 
-func NewCmd() *Cmd {
-	return &Cmd {
+func NewCmdSimple() *CmdSimple {
+	return &CmdSimple {
 		CmdName : "",
 		Args    : make([]string, 0),
 	}
 }
 
-func (self *Cmd)ParseCmd(msglist []string) {
+func (self CmdSimple)GetCmdName() string {
+	return self.CmdName
+}
+
+func (self CmdSimple)ChangeCmdName(newName string) {
+	self.CmdName = newName
+}
+
+func (self CmdSimple)GetArgs() []string {
+	return self.Args
+}
+
+func (self CmdSimple)AddArg(arg string) {
+	self.Args = append(self.Args, arg)
+}
+
+func (self CmdSimple)ParseCmd(msglist []string) {
 	self.CmdName = msglist[1]
 	self.Args = msglist[2:]
 }
+
+func (self CmdSimple)GetAnyData() interface{} {
+	return nil
+}
+
+type CmdInternal struct {
+	CmdName string
+	Args    []string
+	AnyData interface{}
+}
+
+func NewCmdInternal() *CmdInternal {
+	return &CmdInternal {
+		CmdName : "",
+		Args    : make([]string, 0),
+	}
+}
+
+func (self CmdInternal)ParseCmd(msglist []string) {
+	self.CmdName = msglist[1]
+	self.Args = msglist[2:]
+}
+
+func (self CmdInternal)GetCmdName() string {
+	return self.CmdName
+}
+
+func (self CmdInternal)ChangeCmdName(newName string) {
+	self.CmdName = newName
+}
+
+func (self CmdInternal)GetArgs() []string {
+	return self.Args
+}
+
+func (self CmdInternal)AddArg(arg string) {
+	self.Args = append(self.Args, arg)
+}
+
+func (self CmdInternal)GetAnyData() interface{} {
+	return self.AnyData
+}
+
 
 type ClientIDCmd struct {
 	CmdName  string
