@@ -77,7 +77,7 @@ func (self *ProtoProc)procCreateTopic(cmd protocol.Cmd, session *link.Session) e
 }
 
 func (self *ProtoProc)procJoinTopic(cmd protocol.Cmd, session *link.Session) error {
-	glog.Info("procCreateTopic")
+	glog.Info("procJoinTopic")
 	var err error
 	topicName := cmd.GetArgs()[0]
 	serverAddr := self.Router.topicServerMap[topicName]
