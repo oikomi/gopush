@@ -18,7 +18,6 @@ package storage
 import (
 	"time"
 	"sync"
-	"encoding/json"
 	"errors"
 	"github.com/garyburd/redigo/redis"
 )
@@ -26,14 +25,6 @@ import (
 var (
 	ErrNoKeyPrefix = errors.New("cannot get session keys without a key prefix")
 )
-
-type StoreSession struct {
-	ClientID        string
-	ClientAddr      string
-	MsgServerAddr   string
-	ID              string
-	MaxAge          time.Duration
-}
 
 type RedisStoreOptions struct {
 	Network              string
@@ -66,106 +57,3 @@ func NewRedisStore(opts *RedisStoreOptions) *RedisStore {
 	}
 	return rs
 }
-
-// Get the session from the store.
-func (self *RedisStore) Get(id string) (*StoreSession, error) {
-	self.rwMutex.Lock()
-	defer self.rwMutex.Unlock()
-	key := id
-	if self.opts.KeyPrefix != "" {
-		key = self.opts.KeyPrefix + ":" + id
-	}
-	b, err := redis.Bytes(self.conn.Do("GET", key))
-	if err != nil {
-		return nil, err
-	}
-	var sess StoreSession
-	err = json.Unmarshal(b, &sess)
-	if err != nil {
-		return nil, err
-	}
-	return &sess, nil
-}
-
-// Save the session into the store.
-func (self *RedisStore) Set(sess *StoreSession) error {
-	self.rwMutex.Lock()
-	defer self.rwMutex.Unlock()
-	b, err := json.Marshal(sess)
-	if err != nil {
-		return err
-	}
-	key := sess.ClientID
-	if self.opts.KeyPrefix != "" {
-		key = self.opts.KeyPrefix + ":" + sess.ClientID
-	}
-	ttl := sess.MaxAge
-	if ttl == 0 {
-		// Browser session, set to specified TTL
-		ttl = self.opts.BrowserSessServerTTL
-		if ttl == 0 {
-			ttl = 2 * 24 * time.Hour // Default to 2 days
-		}
-	}
-	_, err = self.conn.Do("SETEX", key, int(ttl.Seconds()), b)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-// Delete the session from the store.
-func (self *RedisStore) Delete(id string) error {
-	self.rwMutex.Lock()
-	defer self.rwMutex.Unlock()
-	key := id
-	if self.opts.KeyPrefix != "" {
-		key = self.opts.KeyPrefix + ":" + id
-	}
-	_, err := self.conn.Do("DEL", key)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-// Clear all sessions from the store. Requires the use of a key
-// prefix in the store options, otherwise the method refuses to delete all keys.
-func (self *RedisStore) Clear() error {
-	self.rwMutex.Lock()
-	defer self.rwMutex.Unlock()
-	vals, err := self.getSessionKeys()
-	if err != nil {
-		return err
-	}
-	if len(vals) > 0 {
-		self.conn.Send("MULTI")
-		for _, v := range vals {
-			self.conn.Send("DEL", v)
-		}
-		_, err = self.conn.Do("EXEC")
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-// Get the number of session keys in the store. Requires the use of a
-// key prefix in the store options, otherwise returns -1 (cannot tell
-// session keys from other keys).
-func (self *RedisStore) Len() int {
-	self.rwMutex.Lock()
-	defer self.rwMutex.Unlock()
-	vals, err := self.getSessionKeys()
-	if err != nil {
-		return -1
-	}
-	return len(vals)
-}
-func (self *RedisStore) getSessionKeys() ([]interface{}, error) {
-	self.rwMutex.Lock()
-	defer self.rwMutex.Unlock()
-	if self.opts.KeyPrefix != "" {
-		return redis.Values(self.conn.Do("KEYS", self.opts.KeyPrefix+":*"))
-	}
-	return nil, ErrNoKeyPrefix
-}
-

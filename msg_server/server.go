@@ -39,7 +39,7 @@ type MsgServer struct {
 	channels          base.ChannelMap
 	topics            protocol.TopicMap
 	server            *link.Server
-	redisStore        *storage.RedisStore
+	sessionStore      *storage.SessionStore
 	scanSessionMutex  sync.Mutex
 }
 
@@ -50,7 +50,7 @@ func NewMsgServer(cfg *MsgServerConfig) *MsgServer {
 		channels           : make(base.ChannelMap),
 		topics             : make(protocol.TopicMap),
 		server             : new(link.Server),
-		redisStore         : storage.NewRedisStore(&storage.RedisStoreOptions {
+		sessionStore       : storage.NewSessionStore(storage.NewRedisStore(&storage.RedisStoreOptions{
 			Network        : "tcp",
 			Address        : cfg.Redis.Port,
 			ConnectTimeout : time.Duration(cfg.Redis.ConnectTimeout)*time.Millisecond,
@@ -58,7 +58,7 @@ func NewMsgServer(cfg *MsgServerConfig) *MsgServer {
 			WriteTimeout   : time.Duration(cfg.Redis.WriteTimeout)*time.Millisecond,
 			Database       : 1,
 			KeyPrefix      : "push",
-		}),
+		})),
 	}
 }
 
@@ -67,7 +67,7 @@ func (self *MsgServer)createChannels() {
 	for _, c := range base.ChannleList {
 		glog.Info(c)
 		channel := link.NewChannel(self.server.Protocol())
-		self.channels[c] = channel
+		self.channels[c] = base.NewChannelState(c, channel)
 	}
 }
 
@@ -86,7 +86,7 @@ func (self *MsgServer)scanDeadSession() {
 					if (s.State).(*base.SessionState).Alive == false {
 						glog.Info("delete" + id)
 						delete(self.sessions, id)
-						err := common.DelSessionFromCID(self.redisStore, id)
+						err := common.DelSessionFromCID(self.sessionStore, id)
 						if err != nil {
 							glog.Warningf("delete ID : %s failed!!", id)
 						}

@@ -28,7 +28,7 @@ import (
 type Router struct {
 	cfg                 *RouterConfig
 	msgServerClientMap  map[string]*link.Session
-	redisStore          *storage.RedisStore
+	sessionStore        *storage.SessionStore
 	topicServerMap      map[string]string
 	readMutex           sync.Mutex
 }   
@@ -37,7 +37,7 @@ func NewRouter(cfg *RouterConfig) *Router {
 	return &Router {
 		cfg                : cfg,
 		msgServerClientMap : make(map[string]*link.Session),
-		redisStore         : storage.NewRedisStore(&storage.RedisStoreOptions {
+		sessionStore       : storage.NewSessionStore(storage.NewRedisStore(&storage.RedisStoreOptions {
 					Network :   "tcp",
 					Address :   cfg.Redis.Port,
 					ConnectTimeout : time.Duration(cfg.Redis.ConnectTimeout)*time.Millisecond,
@@ -45,7 +45,7 @@ func NewRouter(cfg *RouterConfig) *Router {
 					WriteTimeout : time.Duration(cfg.Redis.WriteTimeout)*time.Millisecond,
 					Database :  1,
 					KeyPrefix : "push",
-		}),
+		})),
 		topicServerMap     : make(map[string]string),
 	}
 }
@@ -108,6 +108,7 @@ func (self *Router)subscribeChannels() error {
 		
 		cmd.CmdName = protocol.SUBSCRIBE_CHANNEL_CMD
 		cmd.Args = append(cmd.Args, protocol.SYSCTRL_SEND)
+		cmd.Args = append(cmd.Args, self.cfg.UUID)
 		
 		err = msgServerClient.Send(link.JSON {
 			cmd,
@@ -121,6 +122,7 @@ func (self *Router)subscribeChannels() error {
 		
 		cmd.CmdName = protocol.SUBSCRIBE_CHANNEL_CMD
 		cmd.Args = append(cmd.Args, protocol.SYSCTRL_TOPIC_SYNC)
+		cmd.Args = append(cmd.Args, self.cfg.UUID)
 		
 		err = msgServerClient.Send(link.JSON {
 			cmd,

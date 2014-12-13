@@ -30,6 +30,11 @@ const (
 )
 
 const (
+	STORE_SESSION_CMD       = "STORE_SESSION"
+	STORE_TOPIC_CMD         = "STORE_TOPIC"
+)
+
+const (
 	PING  = "PING"
 )
 
@@ -86,10 +91,11 @@ type CmdInternal struct {
 	AnyData interface{}
 }
 
-func NewCmdInternal() *CmdInternal {
+func NewCmdInternal(cmdName string, args []string, anyData interface{}) *CmdInternal {
 	return &CmdInternal {
-		CmdName : "",
-		Args    : make([]string, 0),
+		CmdName : cmdName,
+		Args    : args,
+		AnyData : anyData,
 	}
 }
 
@@ -114,10 +120,13 @@ func (self CmdInternal)AddArg(arg string) {
 	self.Args = append(self.Args, arg)
 }
 
+func (self CmdInternal)SetAnyData(a interface{}) {
+	self.AnyData = a
+}
+
 func (self CmdInternal)GetAnyData() interface{} {
 	return self.AnyData
 }
-
 
 type ClientIDCmd struct {
 	CmdName  string

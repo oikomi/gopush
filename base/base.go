@@ -20,13 +20,28 @@ import (
 	"github.com/oikomi/gopush/protocol"
 )
 
-type ChannelMap map[string]*link.Channel
+type ChannelMap map[string]*ChannelState
 type SessionMap map[string]*link.Session
 
 var ChannleList []string
 
 func init() {
-	ChannleList = []string{protocol.SYSCTRL_CLIENT_STATUS, protocol.SYSCTRL_TOPIC_SYNC, protocol.SYSCTRL_SEND}
+	ChannleList = []string{protocol.SYSCTRL_CLIENT_STATUS, protocol.SYSCTRL_TOPIC_STATUS, protocol.SYSCTRL_TOPIC_SYNC, 
+		protocol.SYSCTRL_SEND}
+}
+
+type ChannelState struct {
+	ChannelName   string
+	Channel       *link.Channel
+	ClientIDlist  []string
+}
+
+func NewChannelState(channelName string, channel *link.Channel) *ChannelState{
+	return &ChannelState {
+		ChannelName  : channelName,
+		Channel      : channel,
+		ClientIDlist : make([]string, 0),
+	}
 }
 
 type SessionState struct {

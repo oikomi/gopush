@@ -42,8 +42,8 @@ func SelectServer(serverList []string, serverNum int) string {
 	return serverList[rand.Intn(serverNum)]
 }
 
-func GetSessionFromCID(redisStore  *storage.RedisStore, ID string) (*storage.StoreSession, error) {
-	session ,err := redisStore.Get(ID)
+func GetSessionFromCID(sessionStore  *storage.SessionStore, ID string) (*storage.SessionStoreData, error) {
+	session ,err := sessionStore.Get(ID)
 	
 	if err != nil {
 		glog.Warningf("no ID : %s", ID)
@@ -56,8 +56,8 @@ func GetSessionFromCID(redisStore  *storage.RedisStore, ID string) (*storage.Sto
 	return session, nil
 }
 
-func DelSessionFromCID(redisStore  *storage.RedisStore, ID string) error {
-	err := redisStore.Delete(ID)
+func DelSessionFromCID(sessionStore  *storage.SessionStore, ID string) error {
+	err := sessionStore.Delete(ID)
 	
 	if err != nil {
 		glog.Warningf("no ID : %s", ID)

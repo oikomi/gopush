@@ -16,6 +16,6 @@ cd router
 go build
 cd ..
 
-cd session_manager
+cd manager
 go build
 cd ..

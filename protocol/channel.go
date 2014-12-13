@@ -16,14 +16,12 @@
 package protocol
 
 import (
-	"github.com/funny/link"
+	//"github.com/funny/link"
 )
-
-type ChannelMap map[string]*link.Channel
-type SessionMap map[string]*link.Session
 
 const (
 	SYSCTRL_CLIENT_STATUS = "/sysctrl/client-status"
+	SYSCTRL_TOPIC_STATUS  = "/sysctrl/topic-status"
 	SYSCTRL_TOPIC_SYNC    = "/sysctrl/topic-sync"
 	SYSCTRL_SEND          = "/sysctrl/send"
 )

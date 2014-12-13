@@ -23,11 +23,12 @@ import (
 )
 
 type RouterConfig struct {
-	configfile string
+	configfile         string
 	TransportProtocols string
-	Listen string
-	LogFile    string
-	MsgServerList []string
+	Listen             string
+	LogFile            string
+	UUID               string
+	MsgServerList      []string
 	Redis struct { 
 		Addr string 
 		Port string

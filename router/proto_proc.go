@@ -46,7 +46,7 @@ func (self *ProtoProc)procSendMsgP2P(cmd protocol.Cmd, session *link.Session) er
 	glog.Info(send2Msg)
 	self.Router.readMutex.Lock()
 	defer self.Router.readMutex.Unlock()
-	store_session, err := common.GetSessionFromCID(self.Router.redisStore, send2ID)
+	store_session, err := common.GetSessionFromCID(self.Router.sessionStore, send2ID)
 	if err != nil {
 		glog.Warningf("no ID : %s", send2ID)
 		
@@ -87,7 +87,7 @@ func (self *ProtoProc)procJoinTopic(cmd protocol.Cmd, session *link.Session) err
 	locateCmd.CmdName = protocol.LOCATE_TOPIC_CMD
 	locateCmd.Args = append(locateCmd.Args, serverAddr)
 	
-	err = cmd.GetAnyData().(*link.Session).Send(link.JSON {
+	err = session.Send(link.JSON {
 		locateCmd,
 	})
 	if err != nil {
