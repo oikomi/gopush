@@ -56,7 +56,7 @@ func GetSessionFromCID(sessionStore  *storage.SessionStore, ID string) (*storage
 	return session, nil
 }
 
-func DelSessionFromCID(sessionStore  *storage.SessionStore, ID string) error {
+func DelSessionFromCID(sessionStore *storage.SessionStore, ID string) error {
 	err := sessionStore.Delete(ID)
 	
 	if err != nil {
@@ -65,5 +65,19 @@ func DelSessionFromCID(sessionStore  *storage.SessionStore, ID string) error {
 	}
 
 	return nil
+}
+
+func GetTopicFromTopicName(topicStore *storage.TopicStore, topicName string) (*storage.TopicStoreData, error) {
+	topic ,err := topicStore.Get(topicName)
+	
+	if err != nil {
+		glog.Warningf("no topicName : %s", topicName)
+		return nil, err
+	}
+	if topic != nil {
+		glog.Info(topic)
+	}
+	
+	return topic, nil
 }
 

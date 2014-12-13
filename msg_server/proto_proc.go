@@ -184,53 +184,100 @@ func (self *ProtoProc)procSubscribeChannel(cmd protocol.Cmd, session *link.Sessi
 	}
 }
 
-func (self *ProtoProc)procCreateTopic(cmd protocol.Cmd, session *link.Session) {
+func (self *ProtoProc)procCreateTopic(cmd protocol.Cmd, session *link.Session) error {
 	glog.Info("procCreateTopic")
 	var err error
 	topicName := cmd.GetArgs()[0]
-	topic := protocol.NewTopic(topicName, (session.State).(*base.SessionState).ClientID, session)
-	glog.Info(topic)
-	topic.Channel = link.NewChannel(self.msgServer.server.Protocol())
-	topic.ClientIdList = append(topic.ClientIdList, (session.State).(*base.SessionState).ClientID)
-	self.msgServer.topics[topicName] = topic
 	
+	topicStoreData := storage.NewTopicStoreData(topicName, session.State.(*base.SessionState).ClientID, 
+		self.msgServer.cfg.LocalIP)
+
+	t := protocol.NewTopic(topicName, self.msgServer.cfg.LocalIP, session.State.(*base.SessionState).ClientID, session)
+	t.ClientIDList = append(t.ClientIDList, session.State.(*base.SessionState).ClientID)
+	t.TSD = topicStoreData
+	self.msgServer.topics[topicName] = t
+	
+
+	glog.Info(topicStoreData)
 	args := make([]string, 0)
 	args = append(args, topicName)
-	cCmd := protocol.NewCmdInternal(protocol.CREATE_TOPIC_CMD, args, self.msgServer.cfg.LocalIP)
+	CCmd := protocol.NewCmdInternal(protocol.STORE_TOPIC_CMD, args, topicStoreData)
+	m := storage.NewMember(session.State.(*base.SessionState).ClientID)
+	CCmd.AnyData.(*storage.TopicStoreData).MemberList = append(CCmd.AnyData.(*storage.TopicStoreData).MemberList, m)
 	
-	glog.Info(cCmd)
+	glog.Info(CCmd)
 	
-	if self.msgServer.channels[protocol.SYSCTRL_TOPIC_SYNC] != nil {
-		err = self.msgServer.channels[protocol.SYSCTRL_TOPIC_SYNC].Channel.Broadcast(link.JSON {
-			cCmd,
+	if self.msgServer.channels[protocol.SYSCTRL_TOPIC_STATUS] != nil {
+		err = self.msgServer.channels[protocol.SYSCTRL_TOPIC_STATUS].Channel.Broadcast(link.JSON {
+			CCmd,
 		})
 		if err != nil {
 			glog.Error(err.Error())
+			return err
 		}
 	}
+	
+	return nil
 }
 
-func (self *ProtoProc)procJoinTopic(cmd protocol.Cmd, session *link.Session) {
+func (self *ProtoProc)findTopicMsgAddr(topicName string) (*storage.TopicStoreData, error) {
+	glog.Info("findTopicMsgAddr")
+	t, err := common.GetTopicFromTopicName(self.msgServer.topicStore, topicName)
+	
+	return t, err
+}
+
+func (self *ProtoProc)procJoinTopic(cmd protocol.Cmd, session *link.Session) error {
 	glog.Info("procJoinTopic")
 	var err error
 	topicName := cmd.GetArgs()[0]
+	
+	if self.msgServer.topics[topicName] == nil {
+		glog.Warning("no topic :" + topicName)
+		t, err := self.findTopicMsgAddr(topicName)
+		if err != nil {
+			glog.Warningf("no topicName : %s", topicName)
+			return err
+		}
+		
+		resp := protocol.NewCmdSimple()
+		resp.CmdName = protocol.LOCATE_TOPIC_MSG_ADDR_CMD
+		resp.Args = append(resp.Args, t.MsgServerAddr)
+		
+		err = session.Send(link.JSON {
+			resp,
+		})
+		
+		if err != nil {
+			glog.Error(err.Error())
+			return err
+		}
+		
+		return err
+	}
+	
+	m := storage.NewMember(session.State.(*base.SessionState).ClientID)
 
+	self.msgServer.topics[topicName].ClientIDList = append(self.msgServer.topics[topicName].ClientIDList, 
+		session.State.(*base.SessionState).ClientID)
+	
+	self.msgServer.topics[topicName].AddMember(m)
+	
 	args := make([]string, 0)
 	args = append(args, topicName)
-	joinCmd := protocol.NewCmdInternal(protocol.JOIN_TOPIC_CMD, args, session)
-
-	if self.msgServer.topics[topicName] != nil {
-		self.msgServer.topics[topicName].Channel.Join(session, nil)
-	} else {
-		if self.msgServer.channels[protocol.SYSCTRL_TOPIC_SYNC] != nil {
-			err = self.msgServer.channels[protocol.SYSCTRL_TOPIC_SYNC].Channel.Broadcast(link.JSON {
-				joinCmd,
-			})
-			if err != nil {
-				glog.Error(err.Error())
-			}
-			
-			
+	CCmd := protocol.NewCmdInternal(protocol.STORE_TOPIC_CMD, args, self.msgServer.topics[topicName].TSD)
+	
+	glog.Info(CCmd)
+	
+	if self.msgServer.channels[protocol.SYSCTRL_TOPIC_STATUS] != nil {
+		err = self.msgServer.channels[protocol.SYSCTRL_TOPIC_STATUS].Channel.Broadcast(link.JSON {
+			CCmd,
+		})
+		if err != nil {
+			glog.Error(err.Error())
+			return err
 		}
 	}
+	
+	return nil
 }

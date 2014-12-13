@@ -36,14 +36,26 @@ func NewTopicStore(RS *RedisStore) *TopicStore {
 type TopicStoreData struct {
 	TopicName     string
 	CreaterID     string
+	MemberList    []*Member
 	MsgServerAddr string
 	MaxAge        time.Duration
+}
+
+type Member struct {
+	ID   string
+}
+
+func NewMember(ID string) *Member {
+	return &Member {
+		ID : ID,
+	}
 }
 
 func NewTopicStoreData(TopicName string, CreaterID string, MsgServerAddr string) *TopicStoreData {
 	return &TopicStoreData {
 		TopicName     : TopicName,
 		CreaterID     : CreaterID,
+		MemberList    : make([]*Member, 0),
 		MsgServerAddr : MsgServerAddr,
 	}
 }
@@ -52,8 +64,12 @@ func (self *TopicStoreData)StoreKey() string {
 	return self.TopicName
 }
 
+func (self *TopicStoreData)AddMember(m *Member) {
+	self.MemberList = append(self.MemberList, m)
+}
+
 // Get the session from the store.
-func (self *TopicStore) Get(k string) (*SessionStoreData, error) {
+func (self *TopicStore) Get(k string) (*TopicStoreData, error) {
 	self.rwMutex.Lock()
 	defer self.rwMutex.Unlock()
 	key := k
@@ -64,7 +80,7 @@ func (self *TopicStore) Get(k string) (*SessionStoreData, error) {
 	if err != nil {
 		return nil, err
 	}
-	var sess SessionStoreData
+	var sess TopicStoreData
 	err = json.Unmarshal(b, &sess)
 	if err != nil {
 		return nil, err
@@ -73,16 +89,16 @@ func (self *TopicStore) Get(k string) (*SessionStoreData, error) {
 }
 
 // Save the session into the store.
-func (self *TopicStore) Set(sess *SessionStoreData) error {
+func (self *TopicStore) Set(sess *TopicStoreData) error {
 	self.rwMutex.Lock()
 	defer self.rwMutex.Unlock()
 	b, err := json.Marshal(sess)
 	if err != nil {
 		return err
 	}
-	key := sess.ClientID
+	key := sess.TopicName
 	if self.RS.opts.KeyPrefix != "" {
-		key = self.RS.opts.KeyPrefix + ":" + sess.ClientID
+		key = self.RS.opts.KeyPrefix + ":" + sess.TopicName
 	}
 	ttl := sess.MaxAge
 	if ttl == 0 {
@@ -113,6 +129,7 @@ func (self *TopicStore) Delete(id string) error {
 	}
 	return nil
 }
+
 // Clear all sessions from the store. Requires the use of a key
 // prefix in the store options, otherwise the method refuses to delete all keys.
 func (self *TopicStore) Clear() error {

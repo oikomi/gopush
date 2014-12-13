@@ -40,6 +40,7 @@ type MsgServer struct {
 	topics            protocol.TopicMap
 	server            *link.Server
 	sessionStore      *storage.SessionStore
+	topicStore        *storage.TopicStore
 	scanSessionMutex  sync.Mutex
 }
 
@@ -51,6 +52,15 @@ func NewMsgServer(cfg *MsgServerConfig) *MsgServer {
 		topics             : make(protocol.TopicMap),
 		server             : new(link.Server),
 		sessionStore       : storage.NewSessionStore(storage.NewRedisStore(&storage.RedisStoreOptions{
+			Network        : "tcp",
+			Address        : cfg.Redis.Port,
+			ConnectTimeout : time.Duration(cfg.Redis.ConnectTimeout)*time.Millisecond,
+			ReadTimeout    : time.Duration(cfg.Redis.ReadTimeout)*time.Millisecond,
+			WriteTimeout   : time.Duration(cfg.Redis.WriteTimeout)*time.Millisecond,
+			Database       : 1,
+			KeyPrefix      : "push",
+		})),
+		topicStore         : storage.NewTopicStore(storage.NewRedisStore(&storage.RedisStoreOptions {
 			Network        : "tcp",
 			Address        : cfg.Redis.Port,
 			ConnectTimeout : time.Duration(cfg.Redis.ConnectTimeout)*time.Millisecond,

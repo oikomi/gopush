@@ -53,6 +53,13 @@ func (self *ProtoProc)procStoreSession(cmd protocol.Cmd, session *link.Session) 
 
 func (self *ProtoProc)procStoreTopic(cmd protocol.Cmd, session *link.Session) error {
 	glog.Info("procStoreTopic")
+	var err error
+	glog.Info(cmd.GetAnyData())
+	err = self.Manager.topicStore.Set(cmd.GetAnyData().(*storage.TopicStoreData))
+	if err != nil {
+		glog.Error("error:", err)
+	}
+	glog.Info("set sesion id success")
 	
 	return nil
 }

@@ -17,24 +17,32 @@ package protocol
 
 import (
 	"github.com/funny/link"
+	"github.com/oikomi/gopush/storage"
 )
 
 type TopicMap   map[string]*Topic
 
 type Topic struct {
 	TopicName     string
+	MsgAddr       string
 	Channel       *link.Channel
 	TA            *TopicAttribute
-	ClientIdList  []string
+	ClientIDList  []string
+	TSD           *storage.TopicStoreData
 }
 
-func NewTopic(topicName string, CreaterID string, CreaterSession *link.Session) *Topic {
+func NewTopic(topicName string, msgAddr string, CreaterID string, CreaterSession *link.Session) *Topic {
 	return &Topic {
 		TopicName    : topicName,
+		MsgAddr      : msgAddr,
 		Channel      : new(link.Channel),
 		TA           : NewTopicAttribute(CreaterID, CreaterSession),
-		ClientIdList : make([]string, 0),
+		ClientIDList : make([]string, 0),
 	}
+}
+
+func (self *Topic)AddMember(m *storage.Member) {
+	self.TSD.MemberList = append(self.TSD.MemberList, m)
 }
 
 type TopicAttribute struct {

@@ -89,13 +89,13 @@ func (self *Manager)parseProtocol(cmd []byte, session *link.Session) error {
 			}
 			pp.procStoreSession(ssc, session)
 		case protocol.STORE_TOPIC_CMD:
-			var stc SessionStoreCmd
-			err := json.Unmarshal(cmd, &stc)
+			var tsc TopicStoreCmd
+			err := json.Unmarshal(cmd, &tsc)
 			if err != nil {
 				glog.Error("error:", err)
 				return err
 			}
-			pp.procStoreTopic(stc, session)
+			pp.procStoreTopic(tsc, session)
 		}
 
 	return err
